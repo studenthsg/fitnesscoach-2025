@@ -12,7 +12,7 @@ query = st.text_input("Enter a recipe keyword:", "")
 
 #API link to app
 API_URL = "https://api.spoonacular.com/recipes/complexSearch" #link to our API
-API_KEY = "YOUR_API_KEY"
+API_KEY = "a636f339cbdb4409ae46bb47e0c35577"
 
 def get_recipes(query):
     params = {"query": query, "apiKey": API_KEY}
