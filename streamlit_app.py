@@ -6,6 +6,9 @@ st.write(
 )
 number = st.slider("How much fun is this project", 0, 100)
 
+# Define query with an initial default value, such as an empty string
+query = st.text_input("Enter a recipe keyword:", "")
+
 #API link to app
 API_URL = "https://api.spoonacular.com/recipes/complexSearch" #link to our API
 API_KEY = "YOUR_API_KEY"
