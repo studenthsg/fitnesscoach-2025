@@ -11,14 +11,7 @@ add_page_title()
 show_pages(
     [
         Page("streamlit_app.py", "Home", "🏠"),
-        Page("other_pages/page2.py", "Page 2", ":books:"),
     ]
-)
-
-st.set_page_config(
-    page_title="Home", 
-    page_icon="🏠",     
-    layout="centered"   
 )
 
 st.title("Welcome to the Meal Planner")
