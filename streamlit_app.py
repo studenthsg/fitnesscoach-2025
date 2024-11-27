@@ -6,10 +6,6 @@ st.set_page_config(
     page_icon="🏠"
 )
 
-st.title("Meal Planner 🍗")
-st.sidebar.header("Home")
-st.sidebar.success("Select a page above.")
-
 st.title("Welcome to the Meal Planner")
 st.sidebar.title("Meal Planner App")  
 st.sidebar.success("Navigate through the pages above.")
