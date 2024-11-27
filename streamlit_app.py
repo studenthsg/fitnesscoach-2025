@@ -7,6 +7,7 @@ st.set_page_config(
 )
 
 st.title("Meal Planner 🍗")
+st.sidebar.title("Home")
 st.sidebar.header("Home")
 st.sidebar.success("Select a page above.")
 
