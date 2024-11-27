@@ -18,8 +18,8 @@ st.markdown("Relax, explore, and enjoy—because this isn’t just a website. It
 st.markdown("""
     <style>
         .background-image-area {
-            height: 200px;
-            background-image: url('https://www.creativefabrica.com/wp-content/uploads/2023/02/20/Unicorn-Farting-A-Rainbow-Graphic-61806034-1.png');
+            height: 400px;
+            background-image: url('https://i.etsystatic.com/16060308/r/il/84bae2/5875162544/il_fullxfull.5875162544_e2ck.jpg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
