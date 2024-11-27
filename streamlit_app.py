@@ -1,6 +1,14 @@
 import streamlit as st
 import requests
 
+st.set_page_config(
+    page_title="Multipage App",
+    page_icon="👋",
+)
+
+st.title("Main Page")
+st.sidebar.success("Select a page above.")
+
 st.title("Meal Planner 🍗")
 
 # API setup
