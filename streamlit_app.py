@@ -15,4 +15,3 @@ st.markdown("Let this be your sanctuary of discovery, a place where every moment
 
 st.markdown("Relax, explore, and enjoy—because this isn’t just a website. It’s the start of something truly unforgettable.")
 
-st.image(<https://as2.ftcdn.net/v2/jpg/01/40/41/61/1000_F_140416103_y57niOiLs18GYtZIK7xsPPcoajslTjXH.jpg>)
