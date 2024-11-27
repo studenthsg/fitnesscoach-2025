@@ -1,7 +1,7 @@
 import streamlit as st
 
 
-st.title("User")
+st.title("Users")
 st.markdown("Users")
 st.sidebar.header("Users")
 
