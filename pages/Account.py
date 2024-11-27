@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.title("Users")
+st.title("Account")
 
 from supabase import create_client, Client
 SUPABASE_URL = "https://qbnmfdcuzeghmyobcnhi.supabase.co"
