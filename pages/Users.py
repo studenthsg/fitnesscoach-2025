@@ -14,4 +14,5 @@ def insert_user(username: str, password: str):
     return response.data
   except Exception as e:
     return e
+
 insert_user("john_doe_5", "secure_password123")
