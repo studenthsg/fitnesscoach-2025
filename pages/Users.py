@@ -3,8 +3,6 @@ import streamlit as st
 st.markdown("Users")
 st.sidebar.header("Users")
 
-st.write("You have entered", st.session_state["my_input"])
-
 from supabase import create_client, Client
 # Replace these with your Supabase project details
 SUPABASE_URL = "https://qbnmfdcuzeghmyobcnhi.supabase.co"
