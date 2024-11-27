@@ -19,7 +19,7 @@ st.markdown("""
     <style>
         .background-image-area {
             height: 400px;
-            background-image: url('https://i.etsystatic.com/16060308/r/il/84bae2/5875162544/il_fullxfull.5875162544_e2ck.jpg');
+            background-image: url('https://images.fineartamerica.com/images/artworkimages/medium/3/my-rainbow-fart-unicorn-blondia-bert-transparent.png');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
