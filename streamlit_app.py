@@ -7,6 +7,7 @@ st.set_page_config(
 )
 
 st.title("Meal Planner 🍗")
+st.sidebar.header("Main")
 st.sidebar.success("Select a page above.")
 
 # API setup
