@@ -2,6 +2,7 @@ import streamlit as st
 
 st.markdown("Users")
 st.sidebar.header("Users")
+st.title("Users")
 
 from supabase import create_client, Client
 # Replace these with your Supabase project details
