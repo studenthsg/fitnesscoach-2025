@@ -5,6 +5,7 @@ st.set_page_config(page_title="Home", page_icon="🍎")
 
 st.title("Meal Planner 🍗")
 st.sidebar.header("Home")
+st.markdown("# Plotting Demo")
 st.sidebar.success("Select a page above.")
 
 st.markdown("Hello, and welcome! You’ve just discovered a space where the ordinary transforms into the extraordinary, where dreams take shape, and where you are at the heart of it all.")
