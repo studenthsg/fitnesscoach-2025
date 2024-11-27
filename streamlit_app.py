@@ -1,10 +1,8 @@
 import streamlit as st
 import requests
 
-st.set_page_config(
-    page_title="Recipe",
-    page_icon="🍗",
-)
+st.set_page_config(page_title="Recipe", page_icon="🍗")
+st.markdown("# recipe")
 
 # App title
 st.title("Meal Planner 🍗")
