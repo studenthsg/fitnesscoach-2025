@@ -6,10 +6,8 @@ st.set_page_config(
     page_icon="👋",
 )
 
-st.title("Main Page")
-st.sidebar.success("Select a page above.")
-
 st.title("Meal Planner 🍗")
+st.sidebar.success("Select a page above.")
 
 # API setup
 API_URL = "https://api.spoonacular.com/recipes/complexSearch"
