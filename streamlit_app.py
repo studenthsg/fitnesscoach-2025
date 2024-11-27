@@ -10,12 +10,12 @@ SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def insert_user(username: str, password: str):
-try:
-response = supabase.table("users").insert({"username": username,
-"password": password}).execute()
-return response.data
-except Exception as e:
-return e
+    try:
+        response = supabase.table("users").insert({"username": username,
+            "password": password}).execute()
+        return response.data
+    except Exception as e:
+        return e
 insert_user("john_doe_5", "secure_password123")
 
 # API setup
