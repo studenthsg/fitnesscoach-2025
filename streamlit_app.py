@@ -2,13 +2,14 @@ import streamlit as st
 import requests
 
 st.set_page_config(
-    page_title="Home",
-    page_icon="🏠"
+    page_title="Home", 
+    page_icon="🏠",     
+    layout="centered"   
 )
 
-st.title("Meal Planner 🍗")
-st.sidebar.header("Home")
-st.sidebar.success("Select a page above.")
+st.title("Welcome to the Meal Planner")
+st.sidebar.title("Meal Planner App")  
+st.sidebar.success("Navigate through the pages above.")
 
 st.markdown("Hello, and welcome! You’ve just discovered a space where the ordinary transforms into the extraordinary, where dreams take shape, and where you are at the heart of it all.")
 
