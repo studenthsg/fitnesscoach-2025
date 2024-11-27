@@ -18,7 +18,6 @@ st.markdown("Relax, explore, and enjoy—because this isn’t just a website. It
 st.markdown("""
     <style>
         .background-image-area {
-            height: 400px;
             background-image: url('https://images.fineartamerica.com/images/artworkimages/medium/3/my-rainbow-fart-unicorn-blondia-bert-transparent.png');
             background-size: cover;
             background-position: center;
