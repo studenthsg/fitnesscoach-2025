@@ -1,22 +1,13 @@
 import streamlit as st
 import requests
 
+st.set_page_config(
+    page_title="Recipe",
+    page_icon="🍗",
+)
+
 # App title
 st.title("Meal Planner 🍗")
-
-from supabase import create_client, Client
-SUPABASE_URL = "https://qbnmfdcuzeghmyobcnhi.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFibm1mZGN1emVnaG15b2JjbmhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI2OTg5NzcsImV4cCI6MjA0ODI3NDk3N30.FXophJC6_BilPfwJ8G1oI9Z_8UBqD9uf2UX0OgY3i00"
-supabase: Client = create_client(https://qbnmfdcuzeghmyobcnhi.supabase.co, eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFibm1mZGN1emVnaG15b2JjbmhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI2OTg5NzcsImV4cCI6MjA0ODI3NDk3N30.FXophJC6_BilPfwJ8G1oI9Z_8UBqD9uf2UX0OgY3i00)
-
-def insert_user(username: str, password: str):
-    try:
-        response = supabase.table("users").insert({"username": username,
-            "password": password}).execute()
-        return response.data
-    except Exception as e:
-        return e
-insert_user("john_doe_5", "secure_password123")
 
 # API setup
 API_URL = "https://api.spoonacular.com/recipes/complexSearch"
