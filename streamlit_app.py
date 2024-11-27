@@ -2,8 +2,8 @@ import streamlit as st
 import requests
 
 st.set_page_config(
-    page_title="Multipage App",
-    page_icon="👋",
+    page_title="Meal Planner",
+    page_icon="🍗",
 )
 
 st.title("Meal Planner 🍗")
