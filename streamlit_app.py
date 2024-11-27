@@ -4,15 +4,24 @@ import requests
 # App title
 st.title("Meal Planner 🍗")
 
-# API setup
-API_URL = "https://api.spoonacular.com/recipes/complexSearch"
-RECIPE_INFO_URL = "https://api.spoonacular.com/recipes/{id}/information"  # URL to get recipe details
-API_KEY = "a636f339cbdb4409ae46bb47e0c35577"
-
 from supabase import create_client, Client
 SUPABASE_URL = "https://qbnmfdcuzeghmyobcnhi.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFibm1mZGN1emVnaG15b2JjbmhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI2OTg5NzcsImV4cCI6MjA0ODI3NDk3N30.FXophJC6_BilPfwJ8G1oI9Z_8UBqD9uf2UX0OgY3i00"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+def insert_user(username: str, password: str):
+try:
+response = supabase.table("users").insert({"username": username,
+"password": password}).execute()
+return response.data
+except Exception as e:
+return e
+insert_user("john_doe_5", "secure_password123")
+
+# API setup
+API_URL = "https://api.spoonacular.com/recipes/complexSearch"
+RECIPE_INFO_URL = "https://api.spoonacular.com/recipes/{id}/information"  # URL to get recipe details
+API_KEY = "a636f339cbdb4409ae46bb47e0c35577"
 
 # User input for recipe search
 query = st.text_input("Enter a recipe keyword:", "")
