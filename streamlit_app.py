@@ -1,11 +1,7 @@
 import streamlit as st
 import requests
 
-def intro():
-    import streamlit as st
-
-    st.title("Meal Planner 🍗")
-    st.sidebar.success("Select a demo above.")
+st.title("Meal Planner 🍗")
 
 # API setup
 API_URL = "https://api.spoonacular.com/recipes/complexSearch"
