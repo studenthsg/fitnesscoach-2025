@@ -25,4 +25,5 @@ st.markdown("""
             background-repeat: no-repeat;
         }
     </style>
+    <div class="background-image-area"></div>
     """, unsafe_allow_html=True)
