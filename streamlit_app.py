@@ -15,3 +15,16 @@ st.markdown("Let this be your sanctuary of discovery, a place where every moment
 
 st.markdown("Relax, explore, and enjoy—because this isn’t just a website. It’s the start of something truly unforgettable.")
 
+st.markdown("""
+    <style>
+        .background-image-area {
+            height: 200px;
+            background-image: url('https://media.istockphoto.com/id/586162072/photo/various-kitchen-utensils.jpg?s=612x612&w=0&k=20&c=auwz9ZHqkG_UlKw5y-8UqvMLznA2PySQ_Jt3ameL1aU=');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown('<div class="background-image-area"></div>', unsafe_allow_html=True)
