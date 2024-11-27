@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 
 st.set_page_config(
-    page_title="Meal Planner",
+    page_title="Welcome",
     page_icon="🍗",
 )
 
