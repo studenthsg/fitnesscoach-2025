@@ -1,7 +1,10 @@
 import streamlit as st
 import requests
 
-st.set_page_config(page_title="Home", page_icon="🍎")
+st.set_page_config(
+    page_title="Home",
+    page_icon="🏠"
+)
 
 st.title("Meal Planner 🍗")
 st.sidebar.header("Home")
