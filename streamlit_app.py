@@ -19,7 +19,7 @@ st.markdown("""
     <style>
         .background-image-area {
             height: 200px;
-            background-image: url('https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.creativefabrica.com%2Fproduct%2Funicorn-farting-a-rainbow-graphic%2F&psig=AOvVaw0n6u4oK7Opb7wz9cjww13t&ust=1732792709072000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCNDkroGy_IkDFQAAAAAdAAAAABAE');
+            background-image: url('https://www.creativefabrica.com/wp-content/uploads/2023/02/20/Unicorn-Farting-A-Rainbow-Graphic-61806034-1.png');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
