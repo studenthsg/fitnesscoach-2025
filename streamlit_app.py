@@ -225,12 +225,18 @@ elif page == "My Account":
 
     supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+    # Initialize session state for login
+    if "logged_in" not in st.session_state:
+        st.session_state.logged_in = False
+        st.session_state.user_data = None
+
     # Function to insert a new user
     def insert_user(username: str, password: str, name: str):
         try:
             response = supabase.table("users").insert({
                 "username": username,
                 "password": password,
+                "name": name
             }).execute()
             return response.data
         except Exception as e:
@@ -257,42 +263,48 @@ elif page == "My Account":
             except Exception as e:
                 st.error(f"Error: {e}")
 
-    # Tabs for Login and Registration
-    tab1, tab2 = st.tabs(["Login", "Register"])
+    if not st.session_state.logged_in:
+        # Tabs for Login and Registration
+        tab1, tab2 = st.tabs(["Login", "Register"])
 
-    # Login tab
-    with tab1:
-        st.subheader("Login")
-        login_username = st.text_input("Username", key="login_username")
-        login_password = st.text_input("Password", type="password", key="login_password")
+        # Login tab
+        with tab1:
+            st.subheader("Login")
+            login_username = st.text_input("Username", key="login_username")
+            login_password = st.text_input("Password", type="password", key="login_password")
 
-        if st.button("Login"):
-            try:
-                # Retrieve user profile after login
-                response = supabase.table("users").select("*").eq("username", login_username).eq("password", login_password).execute()
-                if response.data:
-                    user_data = response.data[0]  # Get the first matching user
-                    st.success("Login successful!")
-                    display_profile(user_data)  # Show profile info
+            if st.button("Login"):
+                try:
+                    # Retrieve user profile after login
+                    response = supabase.table("users").select("*").eq("username", login_username).eq("password", login_password).execute()
+                    if response.data:
+                        user_data = response.data[0]  # Get the first matching user
+                        st.session_state.logged_in = True  # Mark user as logged in
+                        st.session_state.user_data = user_data  # Store user data
+                        st.success("Login successful!")
+                    else:
+                        st.error("Invalid username or password.")
+                except Exception as e:
+                    st.error(f"Error: {e}")
+
+        # Registration tab
+        with tab2:
+            st.subheader("Register")
+            reg_name = st.text_input("Name", key="reg_name")
+            reg_username = st.text_input("Username", key="reg_username")
+            reg_password = st.text_input("Password", type="password", key="reg_password")
+
+            if st.button("Register"):
+                if reg_name and reg_username and reg_password:
+                    response = insert_user(reg_username, reg_password, reg_name)
+                    if isinstance(response, list):  # Successful registration returns a list of inserted rows
+                        st.session_state.logged_in = True  # Mark user as logged in
+                        st.session_state.user_data = {"name": reg_name, "username": reg_username}  # Store user data
+                        st.success("User registered successfully!")
+                    else:
+                        st.error(f"Error: {response}")
                 else:
-                    st.error("Invalid username or password.")
-            except Exception as e:
-                st.error(f"Error: {e}")
-
-    # Registration tab
-    with tab2:
-        st.subheader("Register")
-        reg_name = st.text_input("Name", key="reg_name")
-        reg_username = st.text_input("Username", key="reg_username")
-        reg_password = st.text_input("Password", type="password", key="reg_password")
-
-        if st.button("Register"):
-            if reg_name and reg_username and reg_password:
-                response = insert_user(reg_username, reg_password, reg_name)
-                if isinstance(response, list):  # Successful registration returns a list of inserted rows
-                    st.success("User registered successfully!")
-                    display_profile({"name": reg_name, "username": reg_username})  # Show profile immediately
-                else:
-                    st.error(f"Error: {response}")
-            else:
-                st.error("Please fill in all fields (Name, Username, and Password).")
+                    st.error("Please fill in all fields (Name, Username, and Password).")
+    else:
+        # Display profile if logged in
+        display_profile(st.session_state.user_data)
