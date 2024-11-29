@@ -49,7 +49,7 @@ def get_recipe_details(recipe_id):
 
 # Home Page
 if page == "Home":
-    st.title("My Nutrition Goal 🥗")
+    st.title("My Nutrition Coach 🥗")
     st.markdown(
         """
         <style>
