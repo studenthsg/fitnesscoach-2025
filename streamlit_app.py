@@ -1,15 +1,6 @@
 import streamlit as st
 import requests
 
-st.set_page_config(
-    page_title="Home",
-    page_icon="🏠"
-)
-
-st.title("Welcome to the Deal Planner")
-st.sidebar.title("Meal Planner App")  
-st.sidebar.success("Navigate through the pages above.")
-
 st.markdown("Hello, and welcome! You’ve just discovered a space where the ordinary transforms into the extraordinary, where dreams take shape, and where you are at the heart of it all.")
 
 st.markdown("Whether you’ve come to explore, to create, or simply to be inspired, this is a home designed for YOU. Here, innovation meets imagination, and every click brings you closer to something remarkable.")
