@@ -231,7 +231,6 @@ elif page == "My Account":
             response = supabase.table("users").insert({
                 "username": username,
                 "password": password,
-                "name": name
             }).execute()
             return response.data
         except Exception as e:
