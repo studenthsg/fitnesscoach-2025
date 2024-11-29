@@ -21,20 +21,21 @@ st.markdown("Relax, explore, and enjoy—because this isn’t just a website. It
 st.markdown("""
     <style>
         .background-image-area {
-            height: 600px; /* Consider using min-height for better scalability */
+            height: 600px;
             background-image: url('https://media.istockphoto.com/id/586162072/photo/various-kitchen-utensils.jpg?s=612x612&w=0&k=20&c=auwz9ZHqkG_UlKw5y-8UqvMLznA2PySQ_Jt3ameL1aU=');
-            background-size: cover; /* Ensures the image covers the area without distortion */
-            background-position: center; /* Keeps the image centered */
-            background-repeat: no-repeat; /* Prevents tiling of the image */
-            display: flex; /* Makes it easier to add content inside, if needed */
-            align-items: center; /* Centers child elements vertically if present */
-            justify-content: center; /* Centers child elements horizontally if present */
-            overflow: hidden; /* Hides overflow if necessary */
-            border-radius: 8px; /* Adds subtle rounded corners for aesthetics */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
         }
     </style>
-    """, unsafe_allow_html=True)'
+    <div class="background-image-area"></div>
+    """, unsafe_allow_html=True)
 
     st.markdown('<div class="background-image-area"></div>', unsafe_allow_html=True)');
             background-size: cover;
