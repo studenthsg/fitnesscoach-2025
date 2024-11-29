@@ -91,7 +91,6 @@ if page == "Home":
                 }
             </style>
                 """, unsafe_allow_html=True)
-
                     st.markdown('<div class="background-image-area"></div>', unsafe_allow_html=True)
 
 # Recipe Generator
