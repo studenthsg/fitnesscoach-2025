@@ -217,44 +217,19 @@ if page == "Weekly Planner":
 elif page == "My Account":
     st.title("My Account 🧑‍💻")
 
-    # Initialize session state for accounts
-    if "accounts" not in st.session_state:
-        st.session_state["accounts"] = {}  # Format: {"username": {"name": "Name", "password": "Password"}}
+   import supabase
 
-    if not st.session_state["logged_in"]:
-        # Log In Section
-        st.subheader("Log In")
-        username = st.text_input("Username", key="login_username")
-        password = st.text_input("Password", type="password", key="login_password")
-        login_btn = st.button("Log In")
+st.title("Account")
 
-        if login_btn:
-            if username in st.session_state["accounts"] and st.session_state["accounts"][username]["password"] == password:
-                st.session_state["logged_in"] = True
-                st.session_state["current_user"] = username
-                st.success("Logged in successfully!")
-            else:
-                st.error("Wrong username or password. Please try again.")
+from supabase import create_client, Client
+SUPABASE_URL = "https://qbnmfdcuzeghmyobcnhi.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFibm1mZGN1emVnaG15b2JjbmhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI2OTg5NzcsImV4cCI6MjA0ODI3NDk3N30.FXophJC6_BilPfwJ8G1oI9Z_8UBqD9uf2UX0OgY3i00"
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-        # Create Account Section
-        st.subheader("Create Account")
-        name = st.text_input("Name", key="create_name")
-        new_username = st.text_input("Username", key="create_username")
-        new_password = st.text_input("Password", type="password", key="create_password")
-        create_btn = st.button("Create Account")
-
-        if create_btn:
-            if name and new_username and new_password:
-                if new_username in st.session_state["accounts"]:
-                    st.error("Username already exists. Please choose a different one.")
-                else:
-                    st.session_state["accounts"][new_username] = {"name": name, "password": new_password}
-                    st.success("Account created successfully!")
-            else:
-                st.error("All fields must be filled out to create an account.")
-
-    else:
-        # After Login
-        user_name = st.session_state["accounts"][st.session_state["current_user"]]["name"]
-        st.markdown(f"### Welcome, {user_name}!")
-        st.button("Log Out", on_click=lambda: st.session_state.update({"logged_in": False, "current_user": None}))
+def insert_user(username: str, password: str):
+  try:
+    response = supabase.table("users").insert({"username": username,
+                "password": password}).execute()
+    return response.data
+  except Exception as e:
+    return e
