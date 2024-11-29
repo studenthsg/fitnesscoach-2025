@@ -218,59 +218,82 @@ elif page == "My Account":
     st.title("My Account 🧑‍💻")
 
     import supabase
-
     from supabase import create_client, Client
+
     SUPABASE_URL = "https://qbnmfdcuzeghmyobcnhi.supabase.co"
     SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFibm1mZGN1emVnaG15b2JjbmhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI2OTg5NzcsImV4cCI6MjA0ODI3NDk3N30.FXophJC6_BilPfwJ8G1oI9Z_8UBqD9uf2UX0OgY3i00"
 
     supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# Function to insert a new user
-def insert_user(username: str, password: str):
-    try:
-        response = supabase.table("users").insert({"username": username, "password": password}).execute()
-        return response.data
-    except Exception as e:
-        return e
+    # Function to insert a new user
+    def insert_user(username: str, password: str, name: str):
+        try:
+            response = supabase.table("users").insert({
+                "username": username,
+                "password": password,
+                "name": name
+            }).execute()
+            return response.data
+        except Exception as e:
+            return e
 
-# Function to validate user login
-def login_user(username: str, password: str):
-    try:
-        response = supabase.table("users").select("*").eq("username", username).eq("password", password).execute()
-        if len(response.data) > 0:
-            return True  # Login successful
-        else:
-            return False  # Login failed
-    except Exception as e:
-        return e
+    # Function to display user profile and allow updating weight and height
+    def display_profile(user_data):
+        st.subheader("Profile Information")
+        st.write(f"**Name:** {user_data.get('name', 'N/A')}")
+        st.write(f"**Username:** {user_data.get('username', 'N/A')}")
 
-# Tabs for Login and Registration
-tab1, tab2 = st.tabs(["Login", "Register"])
+        # Input fields for weight and height
+        weight = st.number_input("Enter your weight (kg):", min_value=0.0, step=0.1, key="weight")
+        height = st.number_input("Enter your height (cm):", min_value=0.0, step=0.1, key="height")
 
-# Login tab
-with tab1:
-    st.subheader("Login")
-    login_username = st.text_input("Username", key="login_username")
-    login_password = st.text_input("Password", type="password", key="login_password")
+        if st.button("Save Weight and Height"):
+            try:
+                # Update the user's weight and height in the database
+                response = supabase.table("users").update({"weight": weight, "height": height}).eq("username", user_data["username"]).execute()
+                if response.data:
+                    st.success("Weight and height updated successfully!")
+                else:
+                    st.error("Failed to update weight and height.")
+            except Exception as e:
+                st.error(f"Error: {e}")
 
-    if st.button("Login"):
-        if login_user(login_username, login_password):
-            st.success("Login successful!")
-        else:
-            st.error("Invalid username or password.")
+    # Tabs for Login and Registration
+    tab1, tab2 = st.tabs(["Login", "Register"])
 
-# Registration tab
-with tab2:
-    st.subheader("Register")
-    reg_username = st.text_input("Username", key="reg_username")
-    reg_password = st.text_input("Password", type="password", key="reg_password")
+    # Login tab
+    with tab1:
+        st.subheader("Login")
+        login_username = st.text_input("Username", key="login_username")
+        login_password = st.text_input("Password", type="password", key="login_password")
 
-    if st.button("Register"):
-        if reg_username and reg_password:
-            response = insert_user(reg_username, reg_password)
-            if isinstance(response, list):  # Successful registration returns a list of inserted rows
-                st.success("User registered successfully!")
+        if st.button("Login"):
+            try:
+                # Retrieve user profile after login
+                response = supabase.table("users").select("*").eq("username", login_username).eq("password", login_password).execute()
+                if response.data:
+                    user_data = response.data[0]  # Get the first matching user
+                    st.success("Login successful!")
+                    display_profile(user_data)  # Show profile info
+                else:
+                    st.error("Invalid username or password.")
+            except Exception as e:
+                st.error(f"Error: {e}")
+
+    # Registration tab
+    with tab2:
+        st.subheader("Register")
+        reg_name = st.text_input("Name", key="reg_name")
+        reg_username = st.text_input("Username", key="reg_username")
+        reg_password = st.text_input("Password", type="password", key="reg_password")
+
+        if st.button("Register"):
+            if reg_name and reg_username and reg_password:
+                response = insert_user(reg_username, reg_password, reg_name)
+                if isinstance(response, list):  # Successful registration returns a list of inserted rows
+                    st.success("User registered successfully!")
+                    display_profile({"name": reg_name, "username": reg_username})  # Show profile immediately
+                else:
+                    st.error(f"Error: {response}")
             else:
-                st.error(f"Error: {response}")
-        else:
-            st.error("Please fill in both username and password.")
+                st.error("Please fill in all fields (Name, Username, and Password).")
