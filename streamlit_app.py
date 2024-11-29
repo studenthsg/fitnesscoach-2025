@@ -94,7 +94,6 @@ st.markdown("""
 
 st.markdown('<div class="background-image-area"></div>', unsafe_allow_html=True)
 
-
 # Recipe Generator
 elif page == "Recipe Generator":
     st.title("Recipe Generator 🍳")
