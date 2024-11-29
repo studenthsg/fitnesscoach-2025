@@ -74,6 +74,28 @@ if page == "Home":
 
     st.markdown("Relax, explore, and enjoy—because this isn’t just a website. It’s the start of something truly unforgettable.")
 
+    # Injecting CSS for the background-image-area class
+    st.markdown("""
+        <style>
+            .background-image-area {
+                height: 600px;
+                background-image: url('https://media.istockphoto.com/id/586162072/photo/various-kitchen-utensils.jpg?s=612x612&w=0&k=20&c=auwz9ZHqkG_UlKw5y-8UqvMLznA2PySQ_Jt3ameL1aU=');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+                border-radius: 8px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+            }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # Creating a div with the class background-image-area
+    st.markdown('<div class="background-image-area"></div>', unsafe_allow_html=True)
+
 # Recipe Generator
 elif page == "Recipe Generator":
     st.title("Recipe Generator 🍳")
