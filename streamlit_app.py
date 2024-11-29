@@ -6,7 +6,7 @@ st.set_page_config(
     page_icon="🏠"
 )
 
-st.title("Welcome to the Meal Planner")
+st.title("Welcome to the Deal Planner")
 st.sidebar.title("Meal Planner App")  
 st.sidebar.success("Navigate through the pages above.")
 
