@@ -20,7 +20,7 @@ st.markdown("Relax, explore, and enjoy—because this isn’t just a website. It
 
 st.markdown("""
     <style>
-        .background-image-area {
+        background-image-area {
             height: 600px;
             background-image: url('https://media.istockphoto.com/id/586162072/photo/various-kitchen-utensils.jpg?s=612x612&w=0&k=20&c=auwz9ZHqkG_UlKw5y-8UqvMLznA2PySQ_Jt3ameL1aU=');
             background-size: cover;
