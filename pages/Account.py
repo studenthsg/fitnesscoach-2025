@@ -1,4 +1,3 @@
-I get an error message - improve code: 
 import streamlit as st
 import supabase
 
