@@ -244,7 +244,7 @@ elif page == "Weekly Planner":
         # Display total calories and difference
         st.write(f"**Total Calories for {day}: {total_calories} kcal**")
         st.write(f"**Difference from Estimated Calories: {difference:+.2f} kcal**")
-
+        
 # My Account
 elif page == "My Account":
     st.title("My Account 🧑‍💻")
