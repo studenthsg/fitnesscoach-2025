@@ -236,7 +236,6 @@ elif page == "My Account":
             response = supabase.table("users").insert({
                 "username": username,
                 "password": password,
-                "name": name
             }).execute()
             return response.data
         except Exception as e:
@@ -245,7 +244,6 @@ elif page == "My Account":
     # Function to display user profile and allow updating weight and height
     def display_profile(user_data):
         st.subheader("Profile Information")
-        st.write(f"**Name:** {user_data.get('name', 'N/A')}")
         st.write(f"**Username:** {user_data.get('username', 'N/A')}")
 
         # Input fields for weight and height
@@ -255,7 +253,7 @@ elif page == "My Account":
         if st.button("Save Weight and Height"):
             try:
                 # Update the user's weight and height in the database
-                response = supabase.table("users").update({"weight": weight, "height": height}).eq("username", user_data["username"]).execute()
+                response = supabase.table("users").insert({"weight": weight, "height": height}).eq("username", user_data["username"]).execute()
                 if response.data:
                     st.success("Weight and height updated successfully!")
                 else:
