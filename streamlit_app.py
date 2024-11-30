@@ -188,6 +188,9 @@ SUPABASE_URL = "https://qbnmfdcuzeghmyobcnhi.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFibm1mZGN1emVnaG15b2JjbmhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI2OTg5NzcsImV4cCI6MjA0ODI3NDk3N30.FXophJC6_BilPfwJ8G1oI9Z_8UBqD9uf2UX0OgY3i00"
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+import matplotlib.pyplot as plt
+import numpy as np
+
 # Weekly Planner
 if page == "Weekly Planner":
     st.title("Weekly Planner 📅")
@@ -209,6 +212,9 @@ if page == "Weekly Planner":
     except Exception as e:
         st.error(f"Error fetching data: {e}")
         estimated_calories = 0.0
+
+    total_calories_per_day = []
+    differences = []
 
     # Loop through each day of the week
     for day in days:
@@ -239,10 +245,35 @@ if page == "Weekly Planner":
 
         # Calculate the difference
         difference = total_calories - estimated_calories
+        total_calories_per_day.append(total_calories)
+        differences.append(difference)
 
         # Display total calories and difference
         st.write(f"**Total Calories for {day}: {total_calories} kcal**")
         st.write(f"**Difference from Estimated Calories: {difference:+.2f} kcal**")
+
+    # Plot the graph
+    if total_calories_per_day:
+        avg_calories = [estimated_calories] * len(days)
+
+        fig, ax1 = plt.subplots(figsize=(10, 6))
+
+        # Plot average daily calories as a line
+        ax1.plot(days, avg_calories, label="Estimated Calories", color="blue", linestyle="--")
+        ax1.set_ylabel("Calories (kcal)")
+        ax1.set_title("Weekly Calorie Comparison")
+
+        # Plot differences as a bar chart
+        ax2 = ax1.twinx()
+        ax2.bar(days, differences, label="Difference (Total - Estimated)", color="orange", alpha=0.6)
+        ax2.set_ylabel("Difference (kcal)")
+
+        # Add legends
+        ax1.legend(loc="upper left")
+        ax2.legend(loc="upper right")
+
+        # Display the chart
+        st.pyplot(fig)
         
 # My Account
 elif page == "My Account":
