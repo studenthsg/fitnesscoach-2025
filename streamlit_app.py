@@ -254,6 +254,11 @@ elif page == "My Account":
         weight = st.number_input("Enter your weight (kg):", min_value=0.0, step=0.1, value=user_data.get("weight", 0.0))
         height = st.number_input("Enter your height (cm):", min_value=0.0, step=0.1, value=user_data.get("height", 0.0))
 
+        # Calculate estimated calories
+        if weight > 0 and height > 0:
+            estimated_calories = 10 * weight + 6.25 * height - 5 * 25  # Simplified estimation assuming 25 years of age
+            st.write(f"**Estimated Calorie Needs:** {estimated_calories:.2f} kcal/day")
+
         if st.button("Save Weight and Height"):
             try:
                 # Update the user's weight and height in the database
