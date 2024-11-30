@@ -221,7 +221,7 @@ elif page == "My Account":
     from supabase import create_client, Client
 
     SUPABASE_URL = "https://qbnmfdcuzeghmyobcnhi.supabase.co"
-    SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFibm1mZGN1emVnaG15b2JjbmhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI2OTg5NzcsImV4cCI6MjA0ODI3NDk3N30.FXophJC6_BilPfwJ8G1oI9Z_8UBqD9uf2UX0OgY3i00"
+    SUPABASE_KEY = "your-supabase-key"
 
     supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
@@ -236,6 +236,9 @@ elif page == "My Account":
             response = supabase.table("users").insert({
                 "username": username,
                 "password": password,
+                "name": name,
+                "weight": 0.0,  # Default weight
+                "height": 0.0   # Default height
             }).execute()
             return response.data
         except Exception as e:
@@ -245,16 +248,22 @@ elif page == "My Account":
     def display_profile(user_data):
         st.subheader("Profile Information")
         st.write(f"**Username:** {user_data.get('username', 'N/A')}")
+        st.write(f"**Name:** {user_data.get('name', 'N/A')}")
 
         # Input fields for weight and height
-        weight = st.number_input("Enter your weight (kg):", min_value=0.0, step=0.1, key="weight")
-        height = st.number_input("Enter your height (cm):", min_value=0.0, step=0.1, key="height")
+        weight = st.number_input("Enter your weight (kg):", min_value=0.0, step=0.1, value=user_data.get("weight", 0.0))
+        height = st.number_input("Enter your height (cm):", min_value=0.0, step=0.1, value=user_data.get("height", 0.0))
 
         if st.button("Save Weight and Height"):
             try:
                 # Update the user's weight and height in the database
-                response = supabase.table("users").insert({"weight": weight, "height": height}).eq("username", user_data["username"]).execute()
+                response = supabase.table("users").update({
+                    "weight": weight,
+                    "height": height
+                }).eq("username", user_data["username"]).execute()
                 if response.data:
+                    st.session_state.user_data["weight"] = weight
+                    st.session_state.user_data["height"] = height
                     st.success("Weight and height updated successfully!")
                 else:
                     st.error("Failed to update weight and height.")
@@ -297,7 +306,7 @@ elif page == "My Account":
                     response = insert_user(reg_username, reg_password, reg_name)
                     if isinstance(response, list):  # Successful registration returns a list of inserted rows
                         st.session_state.logged_in = True  # Mark user as logged in
-                        st.session_state.user_data = {"name": reg_name, "username": reg_username}  # Store user data
+                        st.session_state.user_data = {"name": reg_name, "username": reg_username, "weight": 0.0, "height": 0.0}  # Store user data
                         st.success("User registered successfully!")
                     else:
                         st.error(f"Error: {response}")
