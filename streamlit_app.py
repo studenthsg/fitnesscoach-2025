@@ -195,21 +195,24 @@ if page == "Weekly Planner":
     days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
     meals = ["Breakfast", "Lunch", "Dinner"]
 
-    # Fetch the user's estimated calories from Supabase
-    user_data = st.session_state.user_data
-    username = user_data["username"]
+    if st.session_state.get("logged_in", False):
+        # Fetch the user's estimated calories from Supabase
+        user_data = st.session_state.user_data
+        username = user_data["username"]
 
-    # Retrieve the estimated calories from Supabase
-    try:
-        response = supabase.table("users").select("calories").eq("username", username).execute()
-        if response.data:
-            estimated_calories = response.data[0]["calories"]
-        else:
-            st.error("Failed to fetch estimated calories from the database.")
+        # Retrieve the estimated calories from Supabase
+        try:
+            response = supabase.table("users").select("calories").eq("username", username).execute()
+            if response.data:
+                estimated_calories = response.data[0]["calories"]
+            else:
+                st.error("Failed to fetch estimated calories from the database.")
+                estimated_calories = 0.0
+        except Exception as e:
+            st.error(f"Error fetching data: {e}")
             estimated_calories = 0.0
-    except Exception as e:
-        st.error(f"Error fetching data: {e}")
-        estimated_calories = 0.0
+    else:
+        estimated_calories = None
 
     # Loop through each day of the week
     for day in days:
@@ -238,12 +241,13 @@ if page == "Weekly Planner":
                         )
                         total_calories += calories
 
-        # Calculate the difference
-        difference = total_calories - estimated_calories
-
-        # Display total calories and difference
+        # Display total calories
         st.write(f"**Total Calories for {day}: {total_calories} kcal**")
-        st.write(f"**Difference from Estimated Calories: {difference:+.2f} kcal**")
+
+        # Display the difference only if logged in
+        if estimated_calories is not None:
+            difference = total_calories - estimated_calories
+            st.write(f"**Difference from Estimated Calories: {difference:+.2f} kcal**")
         
 # My Account
 elif page == "My Account":
