@@ -238,13 +238,14 @@ elif page == "My Account":
                 "password": password,
                 "name": name,
                 "weight": 0.0,  # Default weight
-                "height": 0.0   # Default height
+                "height": 0.0,  # Default height
+                "calories": 0.0  # Default calories
             }).execute()
             return response.data
         except Exception as e:
             return e
 
-    # Function to display user profile and allow updating weight and height
+    # Function to display user profile and allow updating weight, height, and calories
     def display_profile(user_data):
         st.subheader("Profile Information")
         st.write(f"**Username:** {user_data.get('username', 'N/A')}")
@@ -254,26 +255,30 @@ elif page == "My Account":
         weight = st.number_input("Enter your weight (kg):", min_value=0.0, step=0.1, value=user_data.get("weight", 0.0))
         height = st.number_input("Enter your height (cm):", min_value=0.0, step=0.1, value=user_data.get("height", 0.0))
 
-        if st.button("Save Weight and Height"):
-            try:
-                # Update the user's weight and height in the database
-                response = supabase.table("users").update({
-                    "weight": weight,
-                    "height": height
-                }).eq("username", user_data["username"]).execute()
-                if response.data:
-                    st.session_state.user_data["weight"] = weight
-                    st.session_state.user_data["height"] = height
-                    st.success("Weight and height updated successfully!")
-                else:
-                    st.error("Failed to update weight and height.")
-            except Exception as e:
-                st.error(f"Error: {e}")
-        
         # Calculate estimated calories
+        estimated_calories = None
         if weight > 0 and height > 0:
             estimated_calories = 10 * weight + 6.25 * height - 5 * 25  # Simplified estimation assuming 25 years of age
             st.write(f"**Estimated Calorie Needs:** {estimated_calories:.2f} kcal/day")
+
+        if st.button("Save Weight, Height, and Calories"):
+            try:
+                # Update the user's weight, height, and calories in the database
+                response = supabase.table("users").update({
+                    "weight": weight,
+                    "height": height,
+                    "calories": estimated_calories
+                }).eq("username", user_data["username"]).execute()
+                if response.data:
+                    # Update session state with the new data
+                    st.session_state.user_data["weight"] = weight
+                    st.session_state.user_data["height"] = height
+                    st.session_state.user_data["calories"] = estimated_calories
+                    st.success("Weight, height, and calories updated successfully!")
+                else:
+                    st.error("Failed to update weight, height, and calories.")
+            except Exception as e:
+                st.error(f"Error: {e}")
 
     if not st.session_state.logged_in:
         # Tabs for Login and Registration
@@ -311,7 +316,7 @@ elif page == "My Account":
                     response = insert_user(reg_username, reg_password, reg_name)
                     if isinstance(response, list):  # Successful registration returns a list of inserted rows
                         st.session_state.logged_in = True  # Mark user as logged in
-                        st.session_state.user_data = {"name": reg_name, "username": reg_username, "weight": 0.0, "height": 0.0}  # Store user data
+                        st.session_state.user_data = {"name": reg_name, "username": reg_username, "weight": 0.0, "height": 0.0, "calories": 0.0}  # Store user data
                         st.success("User registered successfully!")
                     else:
                         st.error(f"Error: {response}")
@@ -320,3 +325,4 @@ elif page == "My Account":
     else:
         # Display profile if logged in
         display_profile(st.session_state.user_data)
+
