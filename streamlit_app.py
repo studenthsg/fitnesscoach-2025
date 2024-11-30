@@ -250,16 +250,18 @@ elif page == "My Account":
         st.subheader("Profile Information")
         st.write(f"**Username:** {user_data.get('username', 'N/A')}")
         st.write(f"**Name:** {user_data.get('name', 'N/A')}")
+        st.write(f"**Weight:** {user_data.get('weight', 0.0)} kg")
+        st.write(f"**Height:** {user_data.get('height', 0.0)} cm")
+        st.write(f"**Estimated Calories:** {user_data.get('calories', 0.0):.2f} kcal/day")
 
         # Input fields for weight and height
-        weight = st.number_input("Enter your weight (kg):", min_value=0.0, step=0.1, value=user_data.get("weight", 0.0))
-        height = st.number_input("Enter your height (cm):", min_value=0.0, step=0.1, value=user_data.get("height", 0.0))
+        weight = st.number_input("Update your weight (kg):", min_value=0.0, step=0.1, value=user_data.get("weight", 0.0))
+        height = st.number_input("Update your height (cm):", min_value=0.0, step=0.1, value=user_data.get("height", 0.0))
 
         # Calculate estimated calories
         estimated_calories = None
         if weight > 0 and height > 0:
             estimated_calories = 10 * weight + 6.25 * height - 5 * 25  # Simplified estimation assuming 25 years of age
-            st.write(f"**Estimated Calorie Needs:** {estimated_calories:.2f} kcal/day")
 
         if st.button("Save Weight, Height, and Calories"):
             try:
@@ -318,6 +320,26 @@ elif page == "My Account":
                         st.session_state.logged_in = True  # Mark user as logged in
                         st.session_state.user_data = {"name": reg_name, "username": reg_username, "weight": 0.0, "height": 0.0, "calories": 0.0}  # Store user data
                         st.success("User registered successfully!")
+
+                        # Prompt user to input weight and height
+                        st.info("Please enter your weight and height to complete your profile.")
+                        weight = st.number_input("Enter your weight (kg):", min_value=0.0, step=0.1)
+                        height = st.number_input("Enter your height (cm):", min_value=0.0, step=0.1)
+
+                        if st.button("Save Initial Weight and Height"):
+                            try:
+                                estimated_calories = 10 * weight + 6.25 * height - 5 * 25
+                                supabase.table("users").update({
+                                    "weight": weight,
+                                    "height": height,
+                                    "calories": estimated_calories
+                                }).eq("username", reg_username).execute()
+                                st.session_state.user_data["weight"] = weight
+                                st.session_state.user_data["height"] = height
+                                st.session_state.user_data["calories"] = estimated_calories
+                                st.success("Profile completed successfully!")
+                            except Exception as e:
+                                st.error(f"Error: {e}")
                     else:
                         st.error(f"Error: {response}")
                 else:
@@ -325,4 +347,3 @@ elif page == "My Account":
     else:
         # Display profile if logged in
         display_profile(st.session_state.user_data)
-
