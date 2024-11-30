@@ -211,9 +211,6 @@ if page == "Weekly Planner":
         st.error(f"Error fetching data: {e}")
         estimated_calories = 0.0
 
-    total_calories_per_day = []
-    differences = []
-
     # Loop through each day of the week
     for day in days:
         st.write(f"### {day}")
@@ -243,8 +240,6 @@ if page == "Weekly Planner":
 
         # Calculate the difference
         difference = total_calories - estimated_calories
-        total_calories_per_day.append(total_calories)
-        differences.append(difference)
 
         # Display total calories and difference
         st.write(f"**Total Calories for {day}: {total_calories} kcal**")
