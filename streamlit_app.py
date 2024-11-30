@@ -160,10 +160,20 @@ elif page == "Recipe Generator":
                                 st.warning("Please select a meal type to save this recipe.")
 
 # My Recipes
+
 elif page == "My Recipes":
     st.title("My Recipes 📒")
     for meal_type, recipes in st.session_state["saved_recipes"].items():
-        st.subheader(f"{meal_type} Recipes")
+        # Different font styles for meal types
+        if meal_type == "Breakfast":
+            st.markdown(f"<h2 style='font-family:Courier New; color:blue;'>{meal_type} Recipes</h2>", unsafe_allow_html=True)
+        elif meal_type == "Lunch":
+            st.markdown(f"<h2 style='font-family:Georgia; color:green;'>{meal_type} Recipes</h2>", unsafe_allow_html=True)
+        elif meal_type == "Dinner":
+            st.markdown(f"<h2 style='font-family:Verdana; color:red;'>{meal_type} Recipes</h2>", unsafe_allow_html=True)
+        else:
+            st.markdown(f"<h2 style='font-family:Arial; color:black;'>{meal_type} Recipes</h2>", unsafe_allow_html=True)
+
         for recipe in recipes:
             st.write(f"### {recipe['title']}")
             st.image(recipe.get("image", ""), width=250)
