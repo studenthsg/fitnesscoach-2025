@@ -164,32 +164,26 @@ elif page == "Recipe Generator":
 elif page == "My Recipes":
     st.title("My Recipes 📒")
     for meal_type, recipes in st.session_state["saved_recipes"].items():
-        # Different font styles for meal types
-        if meal_type == "Breakfast":
-            st.markdown(f"<h2 style='font-family:Courier New; color:blue;'>{meal_type} Recipes</h2>", unsafe_allow_html=True)
-        elif meal_type == "Lunch":
-            st.markdown(f"<h2 style='font-family:Georgia; color:green;'>{meal_type} Recipes</h2>", unsafe_allow_html=True)
-        elif meal_type == "Dinner":
-            st.markdown(f"<h2 style='font-family:Verdana; color:red;'>{meal_type} Recipes</h2>", unsafe_allow_html=True)
-        else:
-            st.markdown(f"<h2 style='font-family:Arial; color:black;'>{meal_type} Recipes</h2>", unsafe_allow_html=True)
+        with st.expander(f"{meal_type} Recipes ({len(recipes)})"):
+            for recipe in recipes:
+                st.write(f"### {recipe['title']}")
+                st.image(recipe.get("image", ""), width=250)
+                calories = next(
+                    (n["amount"] for n in recipe.get("nutrition", {}).get("nutrients", []) if n["name"] == "Calories"),
+                    "N/A"
+                )
+                st.write(f"**Calories:** {calories} kcal")
+                
+                if st.checkbox(f"View Full Recipe for {recipe['title']}", key=f"view_{recipe['id']}"):
+                    details = get_recipe_details(recipe["id"])
+                    if details:
+                        st.write("#### Ingredients:")
+                        for ingredient in details["extendedIngredients"]:
+                            st.write(f"- {ingredient['original']}")
+                        st.write("#### Instructions:")
+                        for step in details.get("analyzedInstructions", [{}])[0].get("steps", []):
+                            st.write(f"{step['number']}. {step['step']}")
 
-        for recipe in recipes:
-            st.write(f"### {recipe['title']}")
-            st.image(recipe.get("image", ""), width=250)
-            calories = next((n["amount"] for n in recipe.get("nutrition", {}).get("nutrients", []) if n["name"] == "Calories"), "N/A")
-            st.write(f"**Calories:** {calories} kcal")
-
-            # View recipe details
-            if st.checkbox(f"View Full Recipe for {recipe['title']}", key=f"view_{recipe['id']}"):
-                details = get_recipe_details(recipe["id"])  # Ensure this function is defined earlier
-                if details:
-                    st.write("#### Ingredients:")
-                    for ingredient in details["extendedIngredients"]:
-                        st.write(f"- {ingredient['original']}")
-                    st.write("#### Instructions:")
-                    for step in details.get("analyzedInstructions", [{}])[0].get("steps", []):
-                        st.write(f"{step['number']}. {step['step']}")
 
 # Import Supabase and initialize client
 from supabase import create_client, Client
