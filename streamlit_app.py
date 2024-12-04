@@ -295,32 +295,34 @@ def train_model():
     try:
         response = supabase.table("calories").select("weight, height, gender, age, daily_caloric_needs").execute()
         
-        if response.error:
-            raise ValueError(response.error)
-        
-        data = pd.DataFrame(response.data)
+        # Check if the response was successful
+        if response.status_code == 200:
+            data = pd.DataFrame(response.data)
 
-        # Check if data is loaded properly
-        if data.empty:
-            st.error("No data found in the calories table.")
+            # Check if data is loaded properly
+            if data.empty:
+                st.error("No data found in the calories table.")
+                return None
+
+            # Preprocessing: Convert Gender to numeric using LabelEncoder
+            data['gender'] = LabelEncoder().fit_transform(data['gender'])
+
+            # Select features and target variable
+            features = ['weight', 'height', 'gender', 'age']
+            target = 'daily_caloric_needs'
+
+            # Prepare training data
+            X = data[features]
+            y = data[target]
+
+            # Train RandomForestRegressor
+            model = RandomForestRegressor(random_state=42, n_estimators=100)
+            model.fit(X, y)
+
+            return model
+        else:
+            st.error(f"Failed to fetch data from Supabase. Status code: {response.status_code}")
             return None
-
-        # Preprocessing: Convert Gender to numeric using LabelEncoder
-        data['gender'] = LabelEncoder().fit_transform(data['gender'])
-
-        # Select features and target variable
-        features = ['weight', 'height', 'gender', 'age']
-        target = 'daily_caloric_needs'
-
-        # Prepare training data
-        X = data[features]
-        y = data[target]
-
-        # Train RandomForestRegressor
-        model = RandomForestRegressor(random_state=42, n_estimators=100)
-        model.fit(X, y)
-
-        return model
     except Exception as e:
         st.error(f"Error loading data from Supabase: {e}")
         return None
