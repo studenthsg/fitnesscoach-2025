@@ -295,11 +295,12 @@ def train_model():
     try:
         response = supabase.table("calories").select("weight, height, gender, age, daily_caloric_needs").execute()
         
-        # Check if the response was successful
-        if response.status_code == 200:
-            data = pd.DataFrame(response.data)
+        # Print the response to examine its structure
+        st.write(response)
 
-            # Check if data is loaded properly
+        # Now check the structure of the response
+        if hasattr(response, 'data'):
+            data = pd.DataFrame(response.data)
             if data.empty:
                 st.error("No data found in the calories table.")
                 return None
@@ -321,7 +322,7 @@ def train_model():
 
             return model
         else:
-            st.error(f"Failed to fetch data from Supabase. Status code: {response.status_code}")
+            st.error("Failed to fetch valid data from Supabase.")
             return None
     except Exception as e:
         st.error(f"Error loading data from Supabase: {e}")
