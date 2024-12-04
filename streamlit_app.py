@@ -289,6 +289,11 @@ if page == "Weekly Planner":
         st.pyplot(fig)
 
 # Load the ML model
+import pandas as pd  # Import pandas to handle DataFrame
+from sklearn.preprocessing import LabelEncoder
+from sklearn.ensemble import RandomForestRegressor
+import streamlit as st
+
 @st.cache_resource
 def train_model():
     # Query data from Supabase
@@ -300,7 +305,7 @@ def train_model():
 
         # Now check the structure of the response
         if hasattr(response, 'data'):
-            data = pd.DataFrame(response.data)
+            data = pd.DataFrame(response.data)  # Convert the data to DataFrame
             if data.empty:
                 st.error("No data found in the calories table.")
                 return None
