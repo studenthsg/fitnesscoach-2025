@@ -298,9 +298,6 @@ def train_model():
     # Query data from Supabase
     try:
         response = supabase.table("calories").select("weight, height, gender, age, daily_caloric_needs").execute()
-        
-        # Print the response to examine its structure
-        st.write(response)
 
         # Now check the structure of the response
         if hasattr(response, 'data'):
