@@ -293,15 +293,24 @@ if page == "Weekly Planner":
 def train_model():
     # Query data from Supabase
     try:
-        response = supabase.table("users").select("weight, height, gender, age, daily_caloric_needs").execute()
+        response = supabase.table("calories").select("weight, height, gender, age, daily_caloric_needs").execute()
+        
+        if response.error:
+            raise ValueError(response.error)
+        
         data = pd.DataFrame(response.data)
 
+        # Check if data is loaded properly
+        if data.empty:
+            st.error("No data found in the calories table.")
+            return None
+
         # Preprocessing: Convert Gender to numeric using LabelEncoder
-        data['Gender'] = LabelEncoder().fit_transform(data['Gender'])
+        data['gender'] = LabelEncoder().fit_transform(data['gender'])
 
         # Select features and target variable
-        features = ['Weight', 'Height', 'Gender', 'Age']
-        target = 'Daily_Caloric_Needs'
+        features = ['weight', 'height', 'gender', 'age']
+        target = 'daily_caloric_needs'
 
         # Prepare training data
         X = data[features]
