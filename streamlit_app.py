@@ -298,12 +298,14 @@ elif page == "My Account":
         st.session_state.user_data = None
 
     # Function to insert a new user
-    def insert_user(username: str, password: str, name: str):
+    def insert_user(username: str, password: str, name: str, age: int, gender: str):
         try:
             response = supabase.table("users").insert({
                 "username": username,
                 "password": password,
                 "name": name,
+                "age": age,
+                "gender": gender,
                 "weight": 0.0,  # Default weight
                 "height": 0.0,  # Default height
                 "calories": 0.0  # Default calories
@@ -317,6 +319,8 @@ elif page == "My Account":
         st.subheader("Profile Information")
         st.write(f"**Username:** {user_data.get('username', 'N/A')}")
         st.write(f"**Name:** {user_data.get('name', 'N/A')}")
+        st.write(f"**Age:** {user_data.get('age', 'N/A')}")
+        st.write(f"**Gender:** {user_data.get('gender', 'N/A')}")
         st.write(f"**Weight:** {user_data.get('weight', 0.0)} kg")
         st.write(f"**Height:** {user_data.get('height', 0.0)} cm")
         st.write(f"**Estimated Calories:** {user_data.get('calories', 0.0):.2f} kcal/day")
@@ -328,7 +332,9 @@ elif page == "My Account":
         # Calculate estimated calories
         estimated_calories = None
         if weight > 0 and height > 0:
-            estimated_calories = 10 * weight + 6.25 * height - 5 * 25  # Simplified estimation assuming 25 years of age
+            age = user_data.get("age", 25)  # Default age if not provided
+            gender_factor = -161 if user_data.get("gender", "female").lower() == "female" else 5
+            estimated_calories = 10 * weight + 6.25 * height - 5 * age + gender_factor
 
         if st.button("Save Weight, Height, and Calories"):
             try:
@@ -379,13 +385,23 @@ elif page == "My Account":
             reg_name = st.text_input("Name", key="reg_name")
             reg_username = st.text_input("Username", key="reg_username")
             reg_password = st.text_input("Password", type="password", key="reg_password")
+            reg_age = st.number_input("Age", min_value=1, max_value=120, step=1, key="reg_age")
+            reg_gender = st.selectbox("Gender", ["Male", "Female", "Other"], key="reg_gender")
 
             if st.button("Register"):
-                if reg_name and reg_username and reg_password:
-                    response = insert_user(reg_username, reg_password, reg_name)
+                if reg_name and reg_username and reg_password and reg_age and reg_gender:
+                    response = insert_user(reg_username, reg_password, reg_name, reg_age, reg_gender)
                     if isinstance(response, list):  # Successful registration returns a list of inserted rows
                         st.session_state.logged_in = True  # Mark user as logged in
-                        st.session_state.user_data = {"name": reg_name, "username": reg_username, "weight": 0.0, "height": 0.0, "calories": 0.0}  # Store user data
+                        st.session_state.user_data = {
+                            "name": reg_name,
+                            "username": reg_username,
+                            "age": reg_age,
+                            "gender": reg_gender,
+                            "weight": 0.0,
+                            "height": 0.0,
+                            "calories": 0.0
+                        }  # Store user data
                         st.success("User registered successfully!")
 
                         # Prompt user to input weight and height
@@ -395,7 +411,8 @@ elif page == "My Account":
 
                         if st.button("Save Initial Weight and Height"):
                             try:
-                                estimated_calories = 10 * weight + 6.25 * height - 5 * 25
+                                gender_factor = -161 if reg_gender.lower() == "female" else 5
+                                estimated_calories = 10 * weight + 6.25 * height - 5 * reg_age + gender_factor
                                 supabase.table("users").update({
                                     "weight": weight,
                                     "height": height,
@@ -410,7 +427,8 @@ elif page == "My Account":
                     else:
                         st.error(f"Error: {response}")
                 else:
-                    st.error("Please fill in all fields (Name, Username, and Password).")
+                    st.error("Please fill in all fields (Name, Username, Password, Age, and Gender).")
     else:
         # Display profile if logged in
         display_profile(st.session_state.user_data)
+
