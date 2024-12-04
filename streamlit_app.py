@@ -333,7 +333,7 @@ def train_model():
 model = train_model()
 
 # My Account
-if "My Account":
+if page == "My Account":
     st.title("My Account 🧑‍💻")
 
     # Initialize session state for login
