@@ -288,7 +288,6 @@ if page == "Weekly Planner":
 
         st.pyplot(fig)
 
-# Load the ML model
 import pandas as pd  # Import pandas to handle DataFrame
 from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import RandomForestRegressor
