@@ -218,6 +218,10 @@ if page == "Weekly Planner":
     else:
         estimated_calories = None
 
+    # Initialize data for the graph
+    daily_totals = []
+    estimated_line = [estimated_calories] * len(days) if estimated_calories else []
+
     # Loop through each day of the week
     for day in days:
         st.write(f"### {day}")
@@ -247,12 +251,30 @@ if page == "Weekly Planner":
 
         # Display total calories
         st.write(f"**Total Calories for {day}: {total_calories} kcal**")
+        daily_totals.append(total_calories)
 
         # Display the difference only if logged in
         if estimated_calories is not None:
             difference = total_calories - estimated_calories
             st.write(f"**Difference from Estimated Calories: {difference:+.2f} kcal**")
-        
+
+    # Add a graph for weekly calorie comparison
+    if daily_totals and estimated_line:
+        import matplotlib.pyplot as plt
+
+        fig, ax = plt.subplots(figsize=(10, 5))
+        ax.plot(days, daily_totals, label="Total Calories", marker="o", color="blue")
+        if estimated_calories:
+            ax.plot(days, estimated_line, label="Estimated Calories", linestyle="--", color="orange")
+
+        ax.set_title("Weekly Calorie Overview", fontsize=16)
+        ax.set_xlabel("Days of the Week", fontsize=12)
+        ax.set_ylabel("Calories", fontsize=12)
+        ax.legend(loc="upper left", fontsize=10)
+        ax.grid(True)
+
+        st.pyplot(fig)
+
 # My Account
 elif page == "My Account":
     st.title("My Account 🧑‍💻")
