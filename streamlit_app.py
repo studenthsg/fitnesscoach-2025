@@ -24,7 +24,7 @@ if st.session_state["sidebar_visible"]:
 else:
     page = "Home"
 
-# Global definitions 
+# Global definitions for both recipe generator and my recipes 
 def get_recipes(query, min_calories, max_calories, dietary, exclude, cuisine, meal_type):
     params = {
         "query": query,
@@ -97,6 +97,7 @@ if page == "Home":
     st.markdown('<div class="background-image-area"></div>', unsafe_allow_html=True)
 
 # Recipe Generator
+# Recipe Generator
 elif page == "Recipe Generator":
     st.title("Recipe Generator 🍳")
     query = st.text_input("Enter a recipe keyword:", "")
@@ -117,10 +118,20 @@ elif page == "Recipe Generator":
     )
     meal_type = st.selectbox("Meal Type:", options=["Breakfast", "Lunch", "Dinner"], index=0)
 
-    # Fetch and display recipes (first part already in global definitions)
+    # Button to start the search
+    search_pressed = st.button("Search")
 
-    if query:
-        recipes = get_recipes(query, calorie_range[0], calorie_range[1], dietary_preferences, exclude_ingredient, cuisine, meal_type)
+    # Fetch and display recipes only when the button is pressed (definitions in global definitions)
+    if search_pressed:
+        recipes = get_recipes(
+            query,
+            calorie_range[0],
+            calorie_range[1],
+            dietary_preferences,
+            exclude_ingredient,
+            cuisine,
+            meal_type,
+        )
         if recipes and "results" in recipes:
             for recipe in recipes["results"]:
                 if query.lower() in recipe["title"].lower():
@@ -158,6 +169,8 @@ elif page == "Recipe Generator":
                                         st.warning(f"{recipe['title']} is already in {meal_type} recipes.")
                             else:
                                 st.warning("Please select a meal type to save this recipe.")
+        else:
+            st.warning("No recipes found. Please adjust your search criteria.")
 
 # My Recipes
 
