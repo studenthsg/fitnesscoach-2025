@@ -288,8 +288,39 @@ if page == "Weekly Planner":
 
         st.pyplot(fig)
 
+# Load the ML model
+@st.cache_resource
+def train_model():
+    # Query data from Supabase
+    try:
+        response = supabase.table("calories").select("Weight, Height, Gender, Age, Daily_Caloric_Needs").execute()
+        data = pd.DataFrame(response.data)
+
+        # Preprocessing: Convert Gender to numeric using LabelEncoder
+        data['Gender'] = LabelEncoder().fit_transform(data['Gender'])
+
+        # Select features and target variable
+        features = ['Weight', 'Height', 'Gender', 'Age']
+        target = 'Daily_Caloric_Needs'
+
+        # Prepare training data
+        X = data[features]
+        y = data[target]
+
+        # Train RandomForestRegressor
+        model = RandomForestRegressor(random_state=42, n_estimators=100)
+        model.fit(X, y)
+
+        return model
+    except Exception as e:
+        st.error(f"Error loading data from Supabase: {e}")
+        return None
+
+# Load the trained model
+model = train_model()
+
 # My Account
-elif page == "My Account":
+if "My Account":
     st.title("My Account 🧑‍💻")
 
     # Initialize session state for login
@@ -329,12 +360,13 @@ elif page == "My Account":
         weight = st.number_input("Update your weight (kg):", min_value=0.0, step=0.1, value=user_data.get("weight", 0.0))
         height = st.number_input("Update your height (cm):", min_value=0.0, step=0.1, value=user_data.get("height", 0.0))
 
-        # Calculate estimated calories
-        estimated_calories = None
+        # Predict calories using the ML model
         if weight > 0 and height > 0:
-            age = user_data.get("age", 25)  # Default age if not provided
-            gender_factor = -161 if user_data.get("gender", "female").lower() == "female" else 5
-            estimated_calories = 10 * weight + 6.25 * height - 5 * age + gender_factor
+            gender = 0 if user_data.get("gender", "Male").lower() == "male" else 1
+            age = user_data.get("age", 25)
+            predicted_calories = model.predict([[weight, height, gender, age]])[0]
+        else:
+            predicted_calories = 0.0
 
         if st.button("Save Weight, Height, and Calories"):
             try:
@@ -342,13 +374,13 @@ elif page == "My Account":
                 response = supabase.table("users").update({
                     "weight": weight,
                     "height": height,
-                    "calories": estimated_calories
+                    "calories": predicted_calories
                 }).eq("username", user_data["username"]).execute()
                 if response.data:
                     # Update session state with the new data
                     st.session_state.user_data["weight"] = weight
                     st.session_state.user_data["height"] = height
-                    st.session_state.user_data["calories"] = estimated_calories
+                    st.session_state.user_data["calories"] = predicted_calories
                     st.success("Weight, height, and calories updated successfully!")
                 else:
                     st.error("Failed to update weight, height, and calories.")
@@ -403,33 +435,8 @@ elif page == "My Account":
                             "calories": 0.0
                         }  # Store user data
                         st.success("User registered successfully!")
-
-                        # Prompt user to input weight and height
-                        st.info("Please enter your weight and height to complete your profile.")
-                        weight = st.number_input("Enter your weight (kg):", min_value=0.0, step=0.1)
-                        height = st.number_input("Enter your height (cm):", min_value=0.0, step=0.1)
-
-                        if st.button("Save Initial Weight and Height"):
-                            try:
-                                gender_factor = -161 if reg_gender.lower() == "female" else 5
-                                estimated_calories = 10 * weight + 6.25 * height - 5 * reg_age + gender_factor
-                                supabase.table("users").update({
-                                    "weight": weight,
-                                    "height": height,
-                                    "calories": estimated_calories
-                                }).eq("username", reg_username).execute()
-                                st.session_state.user_data["weight"] = weight
-                                st.session_state.user_data["height"] = height
-                                st.session_state.user_data["calories"] = estimated_calories
-                                st.success("Profile completed successfully!")
-                            except Exception as e:
-                                st.error(f"Error: {e}")
-                    else:
-                        st.error(f"Error: {response}")
                 else:
                     st.error("Please fill in all fields (Name, Username, Password, Age, and Gender).")
     else:
         # Display profile if logged in
         display_profile(st.session_state.user_data)
-
-
