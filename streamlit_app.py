@@ -293,7 +293,7 @@ if page == "Weekly Planner":
 def train_model():
     # Query data from Supabase
     try:
-        response = supabase.table("calories").select("Weight, Height, Gender, Age, Daily_Caloric_Needs").execute()
+        response = supabase.table("users").select("weight, height, gender, age, daily_caloric_needs").execute()
         data = pd.DataFrame(response.data)
 
         # Preprocessing: Convert Gender to numeric using LabelEncoder
