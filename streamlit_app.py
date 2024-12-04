@@ -432,3 +432,4 @@ elif page == "My Account":
         # Display profile if logged in
         display_profile(st.session_state.user_data)
 
+
