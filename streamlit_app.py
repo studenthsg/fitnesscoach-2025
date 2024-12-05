@@ -97,9 +97,10 @@ if page == "Home":
     st.markdown('<div class="background-image-area"></div>', unsafe_allow_html=True)
 
 # Recipe Generator
-# Recipe Generator
 elif page == "Recipe Generator":
     st.title("Recipe Generator 🍳")
+    
+    # User inputs
     query = st.text_input("Enter a recipe keyword:", "")
     dietary_preferences = {
         "Vegan": st.checkbox("Vegan"),
@@ -121,9 +122,14 @@ elif page == "Recipe Generator":
     # Button to start the search
     search_pressed = st.button("Search")
 
-    # Fetch and display recipes only when the button is pressed (definitions in global definitions)
+    # Initialize session state to store search results and expanded details
+    if "search_results" not in st.session_state:
+        st.session_state["search_results"] = []  # Store recipes
+        st.session_state["expanded_recipes"] = {}  # Track expanded recipe details
+
+    # Perform search when the button is pressed
     if search_pressed:
-        recipes = get_recipes(
+        st.session_state["search_results"] = get_recipes(
             query,
             calorie_range[0],
             calorie_range[1],
@@ -131,45 +137,59 @@ elif page == "Recipe Generator":
             exclude_ingredient,
             cuisine,
             meal_type,
-        )
-        if recipes and "results" in recipes:
-            for recipe in recipes["results"]:
-                if query.lower() in recipe["title"].lower():
-                    st.write(f"### {recipe['title']}")
-                    st.image(recipe.get("image", ""), width=250)
-                    nutrients = recipe.get("nutrition", {}).get("nutrients", [])
-                    calories = next((n["amount"] for n in nutrients if n["name"] == "Calories"), "N/A")
-                    st.write(f"**Calories:** {calories} kcal")
+        ).get("results", [])
 
-                    # View recipe details
-                    show_details = st.checkbox(f"View Full Recipe for {recipe['title']}", key=f"details_{recipe['id']}")
-                    if show_details:
-                        details = get_recipe_details(recipe["id"])
-                        if details:
-                            st.write("#### Ingredients:")
-                            for ingredient in details["extendedIngredients"]:
-                                st.write(f"- {ingredient['original']}")
-                            st.write("#### Instructions:")
-                            for step in details.get("analyzedInstructions", [{}])[0].get("steps", []):
-                                st.write(f"{step['number']}. {step['step']}")
+    # Display search results
+    if st.session_state["search_results"]:
+        for recipe in st.session_state["search_results"]:
+            st.write(f"### {recipe['title']}")
+            st.image(recipe.get("image", ""), width=250)
+            nutrients = recipe.get("nutrition", {}).get("nutrients", [])
+            calories = next((n["amount"] for n in nutrients if n["name"] == "Calories"), "N/A")
+            st.write(f"**Calories:** {calories} kcal")
 
-                            # Display user-selected filters
-                            st.write("#### Filters and Categories:")
-                            st.write(", ".join([key for key, value in dietary_preferences.items() if value]))
-                            st.write(f"**Meal Type:** {meal_type or 'N/A'}")
-                            st.write(f"**Cuisine:** {cuisine or 'N/A'}")
+            # Manage details toggle
+            recipe_id = recipe["id"]
+            if recipe_id not in st.session_state["expanded_recipes"]:
+                st.session_state["expanded_recipes"][recipe_id] = False
 
-                            # Save to "My Recipes"
-                            if meal_type:  # Ensure meal_type is selected
-                                if st.button(f"Save to My Recipes: {recipe['title']}", key=f"save_{recipe['id']}"):
-                                    if recipe not in st.session_state["saved_recipes"][meal_type]:
-                                        st.session_state["saved_recipes"][meal_type].append(recipe)
-                                        st.success(f"{recipe['title']} added to {meal_type} recipes.")
-                                    else:
-                                        st.warning(f"{recipe['title']} is already in {meal_type} recipes.")
+            # Toggle visibility for recipe details
+            toggle_details = st.checkbox(
+                f"View Full Recipe for {recipe['title']}",
+                key=f"details_{recipe_id}",
+                value=st.session_state["expanded_recipes"][recipe_id],
+            )
+            st.session_state["expanded_recipes"][recipe_id] = toggle_details
+
+            # Show full recipe details if toggled
+            if st.session_state["expanded_recipes"][recipe_id]:
+                details = get_recipe_details(recipe_id)
+                if details:
+                    st.write("#### Ingredients:")
+                    for ingredient in details["extendedIngredients"]:
+                        st.write(f"- {ingredient['original']}")
+                    st.write("#### Instructions:")
+                    for step in details.get("analyzedInstructions", [{}])[0].get("steps", []):
+                        st.write(f"{step['number']}. {step['step']}")
+
+                    # Filters and categories summary
+                    st.write("#### Filters and Categories:")
+                    st.write(", ".join([key for key, value in dietary_preferences.items() if value]))
+                    st.write(f"**Meal Type:** {meal_type or 'N/A'}")
+                    st.write(f"**Cuisine:** {cuisine or 'N/A'}")
+
+                    # Save recipe to "My Recipes"
+                    if meal_type:  # Ensure meal_type is selected
+                        if st.button(f"Save to My Recipes: {recipe['title']}", key=f"save_{recipe_id}"):
+                            if recipe not in st.session_state["saved_recipes"][meal_type]:
+                                st.session_state["saved_recipes"][meal_type].append(recipe)
+                                st.success(f"{recipe['title']} added to {meal_type} recipes.")
                             else:
-                                st.warning("Please select a meal type to save this recipe.")
-        else:
+                                st.warning(f"{recipe['title']} is already in {meal_type} recipes.")
+                    else:
+                        st.warning("Please select a meal type to save this recipe.")
+    else:
+        if search_pressed:
             st.warning("No recipes found. Please adjust your search criteria.")
 
 # My Recipes
