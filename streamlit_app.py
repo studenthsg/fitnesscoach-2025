@@ -55,6 +55,7 @@ if page == "Home":
         """,
         unsafe_allow_html=True,
     )
+
     st.markdown("<h2>Welcome to your personalized nutrition and fitness assistant!</h2>", unsafe_allow_html=True)
 
     st.markdown("Hello, and welcome! You’ve just discovered a space where the ordinary transforms into the extraordinary, where dreams take shape, and where you are at the heart of it all.")
