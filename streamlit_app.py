@@ -3,6 +3,7 @@
 
 import streamlit as st
 import requests
+import matplotlib.pyplot as plt
 
 # API setup
 API_URL = "https://api.spoonacular.com/recipes/complexSearch"
