@@ -426,11 +426,11 @@ if page == "My Account":
 
         # Login tab
         with tab1:
-            st.subheader("Login")
+            st.subheader("Press twice to Login")
             login_username = st.text_input("Username", key="login_username")
             login_password = st.text_input("Password", type="password", key="login_password")
 
-            if st.button("Login"):
+            if st.button("Press twice to Login"):
                 try:
                     # Retrieve user profile after login
                     response = supabase.table("users").select("*").eq("username", login_username).eq("password", login_password).execute()
@@ -446,14 +446,14 @@ if page == "My Account":
 
         # Registration tab
         with tab2:
-            st.subheader("Register")
+            st.subheader("Press twice to Register")
             reg_name = st.text_input("Name", key="reg_name")
             reg_username = st.text_input("Username", key="reg_username")
             reg_password = st.text_input("Password", type="password", key="reg_password")
             reg_age = st.number_input("Age", min_value=1, max_value=120, step=1, key="reg_age")
             reg_gender = st.selectbox("Gender", ["Male", "Female", "Other"], key="reg_gender")
 
-            if st.button("Register"):
+            if st.button("Press twice to Register"):
                 if reg_name and reg_username and reg_password and reg_age and reg_gender:
                     response = insert_user(reg_username, reg_password, reg_name, reg_age, reg_gender)
                     if isinstance(response, list):  # Successful registration returns a list of inserted rows
