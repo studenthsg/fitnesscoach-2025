@@ -60,7 +60,7 @@ if page == "Home":
         <style>
             .background-image-area {
                 height: 300px;
-                background-image: url('https://media.istockphoto.com/id/586162072/photo/various-kitchen-utensils.jpg?s=612x612&w=0&k=20&c=auwz9ZHqkG_UlKw5y-8UqvMLznA2PySQ_Jt3ameL1aU=');
+                background-image: url('https://www.fitnessfirst.de/sites/g/files/tbchtk381/files/2023-08/Meal_Prep_Header.jpg');
                 background-size: cover;
                 background-position: center;
                 background-repeat: no-repeat;
