@@ -48,7 +48,7 @@ if page == "Home":
         """
         <style>
         body {
-            background-image: url('https://www.google.com/url?sa=i&url=https%3A%2F%2Fstablediffusionweb.com%2Fimage%2F17629250-anime-style-healthy-food-exercise-collage&psig=AOvVaw3kdWUZySA12O9QHMwy07Ef&ust=1732631421935000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCJjI6ZXZ94kDFQAAAAAdAAAAABAE'); 
+            background-image: url('https://imgcdn.stablediffusionweb.com/2024/9/21/0295465e-4341-46cc-943a-def1abcadd6d.jpg'); 
             background-size: cover;
         }
         </style>
