@@ -41,32 +41,39 @@ def get_recipe_details(recipe_id):
     response = requests.get(url, params=params)
     return response.json() if response.status_code == 200 else None
 
-# Home Page
 if page == "Home":
+    # Title
     st.title("My Nutrition Coach 🥗")
+    
+    # Applying background image to the body (using a custom div)
     st.markdown(
         """
         <style>
-        body {
-            background-image: url('https://imgcdn.stablediffusionweb.com/2024/9/21/0295465e-4341-46cc-943a-def1abcadd6d.jpg'); 
-            background-size: cover;
-        }
+            .custom-background {
+                background-image: url('https://imgcdn.stablediffusionweb.com/2024/9/21/0295465e-4341-46cc-943a-def1abcadd6d.jpg');
+                background-size: cover;
+                background-position: center;
+                height: 100vh;
+                width: 100%;
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: -1;
+            }
         </style>
+        <div class="custom-background"></div>
         """,
         unsafe_allow_html=True,
     )
 
+    # Welcome Message and Page Content
     st.markdown("<h2>Welcome to your personalized nutrition and fitness assistant!</h2>", unsafe_allow_html=True)
-
     st.markdown("Hello, and welcome! You’ve just discovered a space where the ordinary transforms into the extraordinary, where dreams take shape, and where you are at the heart of it all.")
-
     st.markdown("Whether you’ve come to explore, to create, or simply to be inspired, this is a home designed for YOU. Here, innovation meets imagination, and every click brings you closer to something remarkable.")
-
     st.markdown("Let this be your sanctuary of discovery, a place where every moment feels special, and every experience is tailored to leave a lasting impression.")
-
     st.markdown("Relax, explore, and enjoy—because this isn’t just a website. It’s the start of something truly unforgettable.")
 
-    # Injecting CSS for the background-image-area class
+    # Injecting CSS for a second background image area
     st.markdown("""
         <style>
             .background-image-area {
@@ -84,10 +91,7 @@ if page == "Home":
             }
         </style>
     """, unsafe_allow_html=True)
-
-    # Creating a div with the class background-image-area
-    st.markdown('<div class="background-image-area"></div>', unsafe_allow_html=True)
-
+    
 # Recipe Generator
 elif page == "Recipe Generator":
     st.title("Recipe Generator 🍳")
