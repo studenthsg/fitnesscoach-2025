@@ -14,16 +14,6 @@ if "logged_in" not in st.session_state:
 if "weekly_plan" not in st.session_state:
     st.session_state["weekly_plan"] = {}
 
-# Sidebar navigation
-if "sidebar_visible" not in st.session_state:
-    st.session_state["sidebar_visible"] = False
-
-if st.session_state["sidebar_visible"]:
-    st.sidebar.title("My Nutrition Coach")
-    page = st.sidebar.radio("Navigate", ["Home", "Recipe Generator", "My Recipes", "Weekly Planner", "My Account"])
-else:
-    page = "Home"
-
 # Global definitions for both recipe generator and my recipes 
 def get_recipes(query, min_calories, max_calories, dietary, exclude, cuisine, meal_type):
     params = {
@@ -62,9 +52,6 @@ if page == "Home":
         unsafe_allow_html=True,
     )
     st.markdown("<h2>Welcome to your personalized nutrition and fitness assistant!</h2>", unsafe_allow_html=True)
-
-    if st.button("Let's Get Started!"):
-        st.session_state["sidebar_visible"] = True
 
     st.markdown("Hello, and welcome! You’ve just discovered a space where the ordinary transforms into the extraordinary, where dreams take shape, and where you are at the heart of it all.")
 
