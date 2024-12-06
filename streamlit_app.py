@@ -426,7 +426,7 @@ if page == "My Account":
 
         # Login tab
         with tab1:
-            st.subheader("Press twice to Login")
+            st.subheader("Login")
             login_username = st.text_input("Username", key="login_username")
             login_password = st.text_input("Password", type="password", key="login_password")
 
@@ -446,7 +446,7 @@ if page == "My Account":
 
         # Registration tab
         with tab2:
-            st.subheader("Press twice to Register")
+            st.subheader("Register")
             reg_name = st.text_input("Name", key="reg_name")
             reg_username = st.text_input("Username", key="reg_username")
             reg_password = st.text_input("Password", type="password", key="reg_password")
