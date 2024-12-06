@@ -62,11 +62,10 @@ if page == "Home":
 
     # Welcome Message and Page Content
     st.markdown("<h2>Welcome to your personalized nutrition and fitness assistant!</h2>", unsafe_allow_html=True)
-    st.markdown("Hello, and welcome! You’ve just discovered a space where the ordinary transforms into the extraordinary, where dreams take shape, and where you are at the heart of it all.")
-    st.markdown("Whether you’ve come to explore, to create, or simply to be inspired, this is a home designed for YOU. Here, innovation meets imagination, and every click brings you closer to something remarkable.")
-    st.markdown("Let this be your sanctuary of discovery, a place where every moment feels special, and every experience is tailored to leave a lasting impression.")
-    st.markdown("Relax, explore, and enjoy—because this isn’t just a website. It’s the start of something truly unforgettable.")
-
+    st.markdown("Finding balance between enjoying delicious meals and maintaining a healthy lifestyle can feel overwhelming. That’s why having a tool that combines recipe discovery, meal planning, and personalized calorie tracking is so important.")
+    st.markdown("This platform helps you find recipes that fit your tastes and goals while calculating your unique calorie needs based on your age, weight, activity level, and more. With a built-in weekly planner, you can organize your meals effortlessly, saving time and staying on track.")
+    st.markdown("It’s not just about food—it’s about creating a lifestyle where eating well is simple, enjoyable, and empowering. Cook smarter, eat better, and embrace a healthier, happier you.")
+    
    # Injecting CSS for the background-image-area class
     st.markdown("""
         <style>
