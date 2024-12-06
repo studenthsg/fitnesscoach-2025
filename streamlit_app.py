@@ -385,7 +385,7 @@ if page == "My Account":
         st.write(f"**Gender:** {user_data.get('gender', 'N/A')}")
         st.write(f"**Weight:** {user_data.get('weight', 0.0)} kg")
         st.write(f"**Height:** {user_data.get('height', 0.0)} cm")
-        st.write(f"**Estimated Calories:** {user_data.get('calories', 0.0):.2f} kcal/day")
+        st.write(f"**Estimated Calories:** {round(user_data.get('calories', 0.0))} kcal/day")
 
         # Input fields for weight and height
         weight = st.number_input("Update your weight (kg):", min_value=0.0, step=0.1, value=user_data.get("weight", 0.0))
@@ -395,7 +395,7 @@ if page == "My Account":
         if weight > 0 and height > 0:
             gender = 0 if user_data.get("gender", "Male").lower() == "male" else 1
             age = user_data.get("age", 25)
-            predicted_calories = model.predict([[weight, height, gender, age]])[0]
+            predicted_calories = round(model.predict([[weight, height, gender, age]])[0])
         else:
             predicted_calories = 0.0
 
