@@ -1,4 +1,5 @@
-# App can be accessed throught the following lin: https://food2025.streamlit.app
+# The app can be accessed via the following link: https://food2025.streamlit.app
+# The app requires streamlit, supabase, scikit-learn, pandas and numpy
 
 import streamlit as st
 import requests
