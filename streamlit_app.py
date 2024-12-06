@@ -21,6 +21,17 @@ if "weekly_plan" not in st.session_state:
 st.sidebar.title("My Nutrition Coach")
 page = st.sidebar.radio("Navigate", ["Home", "Recipe Generator", "My Recipes", "Weekly Planner", "My Account"])
 
+st.html(
+    """
+<style>
+[data-testid="stSidebarContent"] {
+    color: white;
+    background-color: green;
+}
+</style>
+"""
+)
+
 # Global definitions for both recipe generator and my recipes 
 def get_recipes(query, min_calories, max_calories, dietary, exclude, cuisine, meal_type):
     params = {
