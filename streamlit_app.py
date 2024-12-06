@@ -300,6 +300,13 @@ def train_model():
     try:
         response = supabase.table("calories").select("weight, height, gender, age, daily_caloric_needs").execute()
 
+        # Now check the structure of the response
+        if hasattr(response, 'data'):
+            data = pd.DataFrame(response.data)  # Convert the data to DataFrame
+            if data.empty:
+                st.error("No data found in the calories table.")
+                return None
+        
             # Preprocessing: Convert Gender to numeric using LabelEncoder
             data['gender'] = LabelEncoder().fit_transform(data['gender'])
 
