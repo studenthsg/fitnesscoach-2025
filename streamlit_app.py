@@ -141,6 +141,12 @@ elif page == "Recipe Generator":
             calories = next((n["amount"] for n in nutrients if n["name"] == "Calories"), "N/A")
             st.write(f"**Calories:** {calories} kcal")
 
+            # Ensure calories is a rounded number
+            if calories != "N/A":
+                calories = round(calories)
+        
+            st.write(f"**Calories:** {calories} kcal")
+
             # Manage details toggle
             recipe_id = recipe["id"]
             if recipe_id not in st.session_state["expanded_recipes"]:
