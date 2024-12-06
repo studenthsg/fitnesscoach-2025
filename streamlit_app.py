@@ -12,7 +12,7 @@ API_KEY = "a636f339cbdb4409ae46bb47e0c35577"
 base="light"
 primaryColor="#34eb40"  # Optional: Set a primary color
 backgroundColor="#ffffff"  # Optional: Set the main app background color
-secondaryBackgroundColor="#ccffcc"  # Light green sidebar color
+secondaryBackgroundColor="#90EE90"  # Light green sidebar color
 textColor="#000000"
 
 # Initialize session state
