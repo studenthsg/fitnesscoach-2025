@@ -44,27 +44,6 @@ def get_recipe_details(recipe_id):
 if page == "Home":
     # Title
     st.title("My Nutrition Coach 🥗")
-    
-    # Applying background image to the body (using a custom div)
-    st.markdown(
-        """
-        <style>
-            .custom-background {
-                background-image: url('https://imgcdn.stablediffusionweb.com/2024/9/21/0295465e-4341-46cc-943a-def1abcadd6d.jpg');
-                background-size: cover;
-                background-position: center;
-                height: 100vh;
-                width: 100%;
-                position: fixed;
-                top: 0;
-                left: 0;
-                z-index: -1;
-            }
-        </style>
-        <div class="custom-background"></div>
-        """,
-        unsafe_allow_html=True,
-    )
 
     # Welcome Message and Page Content
     st.markdown("<h2>Welcome to your personalized nutrition and fitness assistant!</h2>", unsafe_allow_html=True)
