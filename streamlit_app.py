@@ -14,7 +14,7 @@ if "logged_in" not in st.session_state:
 if "weekly_plan" not in st.session_state:
     st.session_state["weekly_plan"] = {}
 
- Sidebar navigation
+# Sidebar
 st.sidebar.title("My Nutrition Coach")
 page = st.sidebar.radio("Navigate", ["Home", "Recipe Generator", "My Recipes", "Weekly Planner", "My Account"])
 
