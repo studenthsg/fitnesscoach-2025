@@ -139,7 +139,6 @@ elif page == "Recipe Generator":
             st.image(recipe.get("image", ""), width=250)
             nutrients = recipe.get("nutrition", {}).get("nutrients", [])
             calories = next((n["amount"] for n in nutrients if n["name"] == "Calories"), "N/A")
-            st.write(f"**Calories:** {calories} kcal")
 
             # Ensure calories is a rounded number
             if calories != "N/A":
