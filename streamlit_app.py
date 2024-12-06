@@ -52,7 +52,7 @@ if page == "Home":
     st.markdown("Let this be your sanctuary of discovery, a place where every moment feels special, and every experience is tailored to leave a lasting impression.")
     st.markdown("Relax, explore, and enjoy—because this isn’t just a website. It’s the start of something truly unforgettable.")
 
-    # Injecting CSS for a second background image area
+   # Injecting CSS for the background-image-area class
     st.markdown("""
         <style>
             .background-image-area {
@@ -70,6 +70,9 @@ if page == "Home":
             }
         </style>
     """, unsafe_allow_html=True)
+
+    # Creating a div with the class background-image-area
+    st.markdown('<div class="background-image-area"></div>', unsafe_allow_html=True)
     
 # Recipe Generator
 elif page == "Recipe Generator":
