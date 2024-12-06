@@ -21,15 +21,16 @@ if "weekly_plan" not in st.session_state:
 st.sidebar.title("My Nutrition Coach")
 page = st.sidebar.radio("Navigate", ["Home", "Recipe Generator", "My Recipes", "Weekly Planner", "My Account"])
 
-st.html(
+st.markdown(
     """
-<style>
-[data-testid="stSidebarContent"] {
-    color: white;
-    background-color: green;
-}
-</style>
-"""
+    <style>
+    [data-testid="stSidebarContent"] {
+        color: white;
+        background-color: #90EE90;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
 )
 
 # Global definitions for both recipe generator and my recipes 
