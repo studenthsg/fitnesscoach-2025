@@ -1,3 +1,5 @@
+# App can be accessed throught the following lin: https://food2025.streamlit.app
+
 import streamlit as st
 import requests
 
