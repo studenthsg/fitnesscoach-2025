@@ -238,7 +238,7 @@ if page == "Weekly Planner":
         try:
             response = supabase.table("users").select("calories").eq("username", username).execute()
             if response.data:
-                estimated_calories = response.data[0]["calories"]
+                estimated_calories = round(response.data[0]["calories"])
             else:
                 st.error("Failed to fetch estimated calories from the database.")
                 estimated_calories = 0.0
