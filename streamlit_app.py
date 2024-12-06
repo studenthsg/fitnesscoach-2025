@@ -54,7 +54,7 @@ if page == "Home":
         """
         <style>
         body {
-            background-image: url('https://media.istockphoto.com/id/586162072/photo/various-kitchen-utensils.jpg?s=612x612&w=0&k=20&c=auwz9ZHqkG_UlKw5y-8UqvMLznA2PySQ_Jt3ameL1aU='); 
+            background-image: url('https://www.google.com/url?sa=i&url=https%3A%2F%2Fstablediffusionweb.com%2Fimage%2F17629250-anime-style-healthy-food-exercise-collage&psig=AOvVaw3kdWUZySA12O9QHMwy07Ef&ust=1732631421935000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCJjI6ZXZ94kDFQAAAAAdAAAAABAE'); 
             background-size: cover;
         }
         </style>
@@ -65,6 +65,36 @@ if page == "Home":
 
     if st.button("Let's Get Started!"):
         st.session_state["sidebar_visible"] = True
+
+    st.markdown("Hello, and welcome! You’ve just discovered a space where the ordinary transforms into the extraordinary, where dreams take shape, and where you are at the heart of it all.")
+
+    st.markdown("Whether you’ve come to explore, to create, or simply to be inspired, this is a home designed for YOU. Here, innovation meets imagination, and every click brings you closer to something remarkable.")
+
+    st.markdown("Let this be your sanctuary of discovery, a place where every moment feels special, and every experience is tailored to leave a lasting impression.")
+
+    st.markdown("Relax, explore, and enjoy—because this isn’t just a website. It’s the start of something truly unforgettable.")
+
+    # Injecting CSS for the background-image-area class
+    st.markdown("""
+        <style>
+            .background-image-area {
+                height: 300px;
+                background-image: url('https://media.istockphoto.com/id/586162072/photo/various-kitchen-utensils.jpg?s=612x612&w=0&k=20&c=auwz9ZHqkG_UlKw5y-8UqvMLznA2PySQ_Jt3ameL1aU=');
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+                border-radius: 8px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+            }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # Creating a div with the class background-image-area
+    st.markdown('<div class="background-image-area"></div>', unsafe_allow_html=True)
 
 # Recipe Generator
 elif page == "Recipe Generator":
@@ -116,14 +146,7 @@ elif page == "Recipe Generator":
             st.image(recipe.get("image", ""), width=250)
             nutrients = recipe.get("nutrition", {}).get("nutrients", [])
             calories = next((n["amount"] for n in nutrients if n["name"] == "Calories"), "N/A")
-            
-            # Updated to round and add "per meal"
-            if calories != "N/A":
-                calories = f"{round(calories)} kcal per meal"
-            else:
-                calories = "N/A per meal"
-
-            st.write(f"**Calories:** {calories}")
+            st.write(f"**Calories:** {calories} kcal")
 
             # Manage details toggle
             recipe_id = recipe["id"]
@@ -149,8 +172,14 @@ elif page == "Recipe Generator":
                     for step in details.get("analyzedInstructions", [{}])[0].get("steps", []):
                         st.write(f"{step['number']}. {step['step']}")
 
+                    # Filters and categories summary
+                    st.write("#### Filters and Categories:")
+                    st.write(", ".join([key for key, value in dietary_preferences.items() if value]))
+                    st.write(f"**Meal Type:** {meal_type or 'N/A'}")
+                    st.write(f"**Cuisine:** {cuisine or 'N/A'}")
+
                     # Save recipe to "My Recipes"
-                    if meal_type:
+                    if meal_type:  # Ensure meal_type is selected
                         if st.button(f"Save to My Recipes: {recipe['title']}", key=f"save_{recipe_id}"):
                             if recipe not in st.session_state["saved_recipes"][meal_type]:
                                 st.session_state["saved_recipes"][meal_type].append(recipe)
@@ -164,6 +193,7 @@ elif page == "Recipe Generator":
             st.warning("No recipes found. Please adjust your search criteria.")
 
 # My Recipes
+
 elif page == "My Recipes":
     st.title("My Recipes 📒")
     for meal_type, recipes in st.session_state["saved_recipes"].items():
@@ -175,10 +205,271 @@ elif page == "My Recipes":
                     (n["amount"] for n in recipe.get("nutrition", {}).get("nutrients", []) if n["name"] == "Calories"),
                     "N/A"
                 )
-                # Updated to round and add "per meal"
-                if calories != "N/A":
-                    calories = f"{round(calories)} kcal per meal"
-                else:
-                    calories = "N/A per meal"
+                st.write(f"**Calories:** {calories} kcal")
+                
+                if st.checkbox(f"View Full Recipe for {recipe['title']}", key=f"view_{recipe['id']}"):
+                    details = get_recipe_details(recipe["id"])
+                    if details:
+                        st.write("#### Ingredients:")
+                        for ingredient in details["extendedIngredients"]:
+                            st.write(f"- {ingredient['original']}")
+                        st.write("#### Instructions:")
+                        for step in details.get("analyzedInstructions", [{}])[0].get("steps", []):
+                            st.write(f"{step['number']}. {step['step']}")
 
-                st.write(f"**Calories:** {calories}")
+
+# Import Supabase and initialize client
+from supabase import create_client, Client
+
+SUPABASE_URL = "https://qbnmfdcuzeghmyobcnhi.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFibm1mZGN1emVnaG15b2JjbmhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI2OTg5NzcsImV4cCI6MjA0ODI3NDk3N30.FXophJC6_BilPfwJ8G1oI9Z_8UBqD9uf2UX0OgY3i00"
+
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# Weekly Planner
+if page == "Weekly Planner":
+    st.title("Weekly Planner 📅")
+    days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    meals = ["Breakfast", "Lunch", "Dinner"]
+
+    if st.session_state.get("logged_in", False):
+        # Fetch the user's estimated calories from Supabase
+        user_data = st.session_state.user_data
+        username = user_data["username"]
+
+        # Retrieve the estimated calories from Supabase
+        try:
+            response = supabase.table("users").select("calories").eq("username", username).execute()
+            if response.data:
+                estimated_calories = response.data[0]["calories"]
+            else:
+                st.error("Failed to fetch estimated calories from the database.")
+                estimated_calories = 0.0
+        except Exception as e:
+            st.error(f"Error fetching data: {e}")
+            estimated_calories = 0.0
+    else:
+        estimated_calories = None
+
+    # Initialize data for the graph
+    daily_totals = []
+    estimated_line = [estimated_calories] * len(days) if estimated_calories else []
+
+    # Loop through each day of the week
+    for day in days:
+        st.write(f"### {day}")
+        col1, col2, col3 = st.columns(3)
+        total_calories = 0
+
+        # Loop through each meal for the day
+        for col, meal in zip([col1, col2, col3], meals):
+            with col:
+                selected_recipe = st.selectbox(
+                    f"{meal}:", 
+                    ["None"] + [recipe["title"] for recipe in st.session_state["saved_recipes"][meal]],
+                    key=f"{day}_{meal}"
+                )
+                if selected_recipe != "None":
+                    recipe = next(
+                        (recipe for recipe in st.session_state["saved_recipes"][meal] if recipe["title"] == selected_recipe),
+                        None
+                    )
+                    if recipe:
+                        # Extract calories from the recipe
+                        calories = next(
+                            (n["amount"] for n in recipe.get("nutrition", {}).get("nutrients", []) if n["name"] == "Calories"), 
+                            0
+                        )
+                        total_calories += calories
+
+        # Display total calories
+        st.write(f"**Total Calories for {day}: {total_calories} kcal**")
+        daily_totals.append(total_calories)
+
+        # Display the difference only if logged in
+        if estimated_calories is not None:
+            difference = total_calories - estimated_calories
+            st.write(f"**Difference from Estimated Calories: {difference:+.2f} kcal**")
+
+    # Add a graph for weekly calorie comparison
+    if daily_totals and estimated_line:
+        import matplotlib.pyplot as plt
+
+        fig, ax = plt.subplots(figsize=(10, 5))
+        ax.plot(days, daily_totals, label="Total Calories", marker="o", color="blue")
+        if estimated_calories:
+            ax.plot(days, estimated_line, label="Estimated Calories", linestyle="--", color="orange")
+
+        ax.set_title("Weekly Calorie Overview", fontsize=16)
+        ax.set_xlabel("Days of the Week", fontsize=12)
+        ax.set_ylabel("Calories", fontsize=12)
+        ax.legend(loc="upper left", fontsize=10)
+        ax.grid(True)
+
+        st.pyplot(fig)
+
+import pandas as pd  # Import pandas to handle DataFrame
+from sklearn.preprocessing import LabelEncoder
+from sklearn.ensemble import RandomForestRegressor
+import streamlit as st
+
+@st.cache_resource
+def train_model():
+    # Query data from Supabase
+    try:
+        response = supabase.table("calories").select("weight, height, gender, age, daily_caloric_needs").execute()
+
+        # Now check the structure of the response
+        if hasattr(response, 'data'):
+            data = pd.DataFrame(response.data)  # Convert the data to DataFrame
+            if data.empty:
+                st.error("No data found in the calories table.")
+                return None
+
+            # Preprocessing: Convert Gender to numeric using LabelEncoder
+            data['gender'] = LabelEncoder().fit_transform(data['gender'])
+
+            # Select features and target variable
+            features = ['weight', 'height', 'gender', 'age']
+            target = 'daily_caloric_needs'
+
+            # Prepare training data
+            X = data[features]
+            y = data[target]
+
+            # Train RandomForestRegressor
+            model = RandomForestRegressor(random_state=42, n_estimators=100)
+            model.fit(X, y)
+
+            return model
+        else:
+            st.error("Failed to fetch valid data from Supabase.")
+            return None
+    except Exception as e:
+        st.error(f"Error loading data from Supabase: {e}")
+        return None
+
+# Load the trained model
+model = train_model()
+
+# My Account
+if page == "My Account":
+    st.title("My Account 🧑‍💻")
+
+    # Initialize session state for login
+    if "logged_in" not in st.session_state:
+        st.session_state.logged_in = False
+        st.session_state.user_data = None
+
+    # Function to insert a new user
+    def insert_user(username: str, password: str, name: str, age: int, gender: str):
+        try:
+            response = supabase.table("users").insert({
+                "username": username,
+                "password": password,
+                "name": name,
+                "age": age,
+                "gender": gender,
+                "weight": 0.0,  # Default weight
+                "height": 0.0,  # Default height
+                "calories": 0.0  # Default calories
+            }).execute()
+            return response.data
+        except Exception as e:
+            return e
+
+    # Function to display user profile and allow updating weight, height, and calories
+    def display_profile(user_data):
+        st.subheader("Profile Information")
+        st.write(f"**Username:** {user_data.get('username', 'N/A')}")
+        st.write(f"**Name:** {user_data.get('name', 'N/A')}")
+        st.write(f"**Age:** {user_data.get('age', 'N/A')}")
+        st.write(f"**Gender:** {user_data.get('gender', 'N/A')}")
+        st.write(f"**Weight:** {user_data.get('weight', 0.0)} kg")
+        st.write(f"**Height:** {user_data.get('height', 0.0)} cm")
+        st.write(f"**Estimated Calories:** {user_data.get('calories', 0.0):.2f} kcal/day")
+
+        # Input fields for weight and height
+        weight = st.number_input("Update your weight (kg):", min_value=0.0, step=0.1, value=user_data.get("weight", 0.0))
+        height = st.number_input("Update your height (cm):", min_value=0.0, step=0.1, value=user_data.get("height", 0.0))
+
+        # Predict calories using the ML model
+        if weight > 0 and height > 0:
+            gender = 0 if user_data.get("gender", "Male").lower() == "male" else 1
+            age = user_data.get("age", 25)
+            predicted_calories = model.predict([[weight, height, gender, age]])[0]
+        else:
+            predicted_calories = 0.0
+
+        if st.button("Save Weight, Height, and Calories"):
+            try:
+                # Update the user's weight, height, and calories in the database
+                response = supabase.table("users").update({
+                    "weight": weight,
+                    "height": height,
+                    "calories": predicted_calories
+                }).eq("username", user_data["username"]).execute()
+                if response.data:
+                    # Update session state with the new data
+                    st.session_state.user_data["weight"] = weight
+                    st.session_state.user_data["height"] = height
+                    st.session_state.user_data["calories"] = predicted_calories
+                    st.success("Weight, height, and calories updated successfully!")
+                else:
+                    st.error("Failed to update weight, height, and calories.")
+            except Exception as e:
+                st.error(f"Error: {e}")
+
+    if not st.session_state.logged_in:
+        # Tabs for Login and Registration
+        tab1, tab2 = st.tabs(["Login", "Register"])
+
+        # Login tab
+        with tab1:
+            st.subheader("Login")
+            login_username = st.text_input("Username", key="login_username")
+            login_password = st.text_input("Password", type="password", key="login_password")
+
+            if st.button("Login"):
+                try:
+                    # Retrieve user profile after login
+                    response = supabase.table("users").select("*").eq("username", login_username).eq("password", login_password).execute()
+                    if response.data:
+                        user_data = response.data[0]  # Get the first matching user
+                        st.session_state.logged_in = True  # Mark user as logged in
+                        st.session_state.user_data = user_data  # Store user data
+                        st.success("Login successful!")
+                    else:
+                        st.error("Invalid username or password.")
+                except Exception as e:
+                    st.error(f"Error: {e}")
+
+        # Registration tab
+        with tab2:
+            st.subheader("Register")
+            reg_name = st.text_input("Name", key="reg_name")
+            reg_username = st.text_input("Username", key="reg_username")
+            reg_password = st.text_input("Password", type="password", key="reg_password")
+            reg_age = st.number_input("Age", min_value=1, max_value=120, step=1, key="reg_age")
+            reg_gender = st.selectbox("Gender", ["Male", "Female", "Other"], key="reg_gender")
+
+            if st.button("Register"):
+                if reg_name and reg_username and reg_password and reg_age and reg_gender:
+                    response = insert_user(reg_username, reg_password, reg_name, reg_age, reg_gender)
+                    if isinstance(response, list):  # Successful registration returns a list of inserted rows
+                        st.session_state.logged_in = True  # Mark user as logged in
+                        st.session_state.user_data = {
+                            "name": reg_name,
+                            "username": reg_username,
+                            "age": reg_age,
+                            "gender": reg_gender,
+                            "weight": 0.0,
+                            "height": 0.0,
+                            "calories": 0.0
+                        }  # Store user data
+                        st.success("User registered successfully!")
+                else:
+                    st.error("Please fill in all fields (Name, Username, Password, Age, and Gender).")
+    else:
+        # Display profile if logged in
+        display_profile(st.session_state.user_data)
