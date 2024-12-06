@@ -238,7 +238,7 @@ if page == "Weekly Planner":
         try:
             response = supabase.table("users").select("calories").eq("username", username).execute()
             if response.data:
-                estimated_calories = round(response.data[0]["calories"])
+                estimated_calories = round(response.data[0]["calories"])  # Round the estimated calories
             else:
                 st.error("Failed to fetch estimated calories from the database.")
                 estimated_calories = 0.0
@@ -279,7 +279,7 @@ if page == "Weekly Planner":
                         )
                         total_calories += calories
 
-        # Display total calories
+        # Display total calories for the day, rounded to a whole number
         st.write(f"**Total Calories for {day}: {round(total_calories)} kcal**")
         daily_totals.append(total_calories)
 
