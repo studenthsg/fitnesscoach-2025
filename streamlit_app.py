@@ -57,9 +57,6 @@ if page == "Home":
     )
     st.markdown("<h2>Welcome to your personalized nutrition and fitness assistant!</h2>", unsafe_allow_html=True)
 
-    if st.button("Let's Get Started!"):
-        st.session_state["sidebar_visible"] = True
-
     st.markdown("Hello, and welcome! You’ve just discovered a space where the ordinary transforms into the extraordinary, where dreams take shape, and where you are at the heart of it all.")
 
     st.markdown("Whether you’ve come to explore, to create, or simply to be inspired, this is a home designed for YOU. Here, innovation meets imagination, and every click brings you closer to something remarkable.")
