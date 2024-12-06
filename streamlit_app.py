@@ -280,13 +280,13 @@ if page == "Weekly Planner":
                         total_calories += calories
 
         # Display total calories
-        st.write(f"**Total Calories for {day}: {total_calories} kcal**")
+        st.write(f"**Total Calories for {day}: {round(total_calories)} kcal**")
         daily_totals.append(total_calories)
 
         # Display the difference only if logged in
         if estimated_calories is not None:
             difference = total_calories - estimated_calories
-            st.write(f"**Difference from Estimated Calories: {difference:+.2f} kcal**")
+            st.write(f"**Difference from Estimated Calories: {round(difference:+.2f)} kcal**")
 
     # Add a graph for weekly calorie comparison
     if daily_totals and estimated_line:
