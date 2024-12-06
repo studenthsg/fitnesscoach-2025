@@ -421,7 +421,7 @@ if page == "My Account":
             login_username = st.text_input("Username", key="login_username")
             login_password = st.text_input("Password", type="password", key="login_password")
 
-            if st.button("Login"):
+            if st.button("Press twice to Login"):
                 try:
                     # Retrieve user profile after login
                     response = supabase.table("users").select("*").eq("username", login_username).eq("password", login_password).execute()
@@ -444,7 +444,7 @@ if page == "My Account":
             reg_age = st.number_input("Age", min_value=1, max_value=120, step=1, key="reg_age")
             reg_gender = st.selectbox("Gender", ["Male", "Female", "Other"], key="reg_gender")
 
-            if st.button("Register"):
+            if st.button("Press twice to Register"):
                 if reg_name and reg_username and reg_password and reg_age and reg_gender:
                     response = insert_user(reg_username, reg_password, reg_name, reg_age, reg_gender)
                     if isinstance(response, list):  # Successful registration returns a list of inserted rows
