@@ -215,7 +215,7 @@ if page == "Weekly Planner":
         user_data = st.session_state.user_data
         username = user_data["username"]
 
-        # Retrieve the estimated calories from Supabase
+        # Retrieve the estimated calories from Supabase - see Supabase Guide Nr. 6
         try:
             response = supabase.table("users").select("calories").eq("username", username).execute()
             if response.data:
@@ -331,6 +331,7 @@ def train_model():
 model = train_model()
 
 # My Account
+# Created with Supabase Guide and ChatGTP
 if page == "My Account":
     st.title("My Account 🧑‍💻")
 
@@ -339,7 +340,7 @@ if page == "My Account":
         st.session_state.logged_in = False
         st.session_state.user_data = None
 
-    # Function to insert a new user
+    # Function to insert a new user - see Supabase Guide with instructions Nr. 5    
     def insert_user(username: str, password: str, name: str, age: int, gender: str):
         try:
             response = supabase.table("users").insert({
@@ -381,7 +382,7 @@ if page == "My Account":
 
         if st.button("Save Weight, Height, and Calories"):
             try:
-                # Update the user's weight, height, and calories in the database
+                # Update the user's weight, height, and calories in the database (see point Supabase Guide Nr. 7)
                 response = supabase.table("users").update({
                     "weight": weight,
                     "height": height,
@@ -408,6 +409,7 @@ if page == "My Account":
             login_username = st.text_input("Username", key="login_username")
             login_password = st.text_input("Password", type="password", key="login_password")
 
+            # See Supabase Guide Nr. 6
             if st.button("Press twice to Login"):
                 try:
                     # Retrieve user profile after login
@@ -444,7 +446,7 @@ if page == "My Account":
                             "weight": 0.0,
                             "height": 0.0,
                             "calories": 0.0
-                        }  # Store user data
+                        }  # Store user data - see Supabase Guide Nr. 6
                         st.success("User registered successfully!")
                 else:
                     st.error("Please fill in all fields (Name, Username, Password, Age, and Gender).")
