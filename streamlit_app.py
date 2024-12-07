@@ -143,7 +143,7 @@ elif page == "Recipe Generator":
             if calories != "N/A":
                 calories = round(calories)
         
-            st.write(f"**Calories Per Person:** {calories} kcal")
+            st.write(f"**Calories_Per_Person:** {calories} kcal")
 
             # Manage details toggle
             recipe_id = recipe["id"]
