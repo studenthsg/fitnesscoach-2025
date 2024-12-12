@@ -21,6 +21,7 @@ if "weekly_plan" not in st.session_state:
 st.sidebar.title("My Nutrition Coach")
 page = st.sidebar.radio("Navigate", ["Home", "Recipe Generator", "My Recipes", "Weekly Planner", "My Account"])
 
+# Change Colour
 st.markdown(
     """
     <style>
