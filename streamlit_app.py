@@ -1,475 +1,423 @@
-# The app can be accessed via the following link: https://food2025.streamlit.app
-# The app requires pip install of streamlit, supabase, scikit-learn, pandas and numpy.
-
-import streamlit as st
-import requests
-
-# API setup
-API_URL = "https://api.spoonacular.com/recipes/complexSearch"
-RECIPE_INFO_URL = "https://api.spoonacular.com/recipes/{id}/information"  # URL to get recipe details
-API_KEY = "a636f339cbdb4409ae46bb47e0c35577"
-
-# Initialize session state
-if "saved_recipes" not in st.session_state:
-    st.session_state["saved_recipes"] = {"Breakfast": [], "Lunch": [], "Dinner": []}
-if "logged_in" not in st.session_state:
-    st.session_state["logged_in"] = False
-if "weekly_plan" not in st.session_state:
-    st.session_state["weekly_plan"] = {}
-
-# Sidebar
-st.sidebar.title("My Nutrition Coach")
-page = st.sidebar.radio("Navigate", ["Home", "Recipe Generator", "My Recipes", "Weekly Planner", "My Account"])
-
-# Change Colour
-st.markdown(
-    """
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LexAI | Schweizer Anwaltsprüfungssimulator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
-    [data-testid="stSidebarContent"] {
-        color: black;
-        background-color: #ADD8E6;
-    }
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9f9fb;
+            --bg-tertiary: #f1f1f4;
+            --text-primary: #111111;
+            --text-secondary: #666666;
+            --text-muted: #999999;
+            --accent: #1c2d42;
+            --accent-light: #e8ecef;
+            --border-color: #e5e5e7;
+            --success: #2e7d32;
+            --error: #c62828;
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: var(--font-main); background-color: var(--bg-primary); color: var(--text-primary); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+        header { border-bottom: 1px solid var(--border-color); padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; background: var(--bg-primary); position: sticky; top: 0; z-index: 100; }
+        .logo { font-weight: 700; font-size: 1.25rem; letter-spacing: -0.02em; text-transform: uppercase; }
+        .logo span { font-weight: 300; color: var(--text-secondary); }
+        main { max-width: 1200px; margin: 0 auto; padding: 2rem; min-height: calc(100vh - 74px); }
+        .hidden { display: none !important; }
+        .card { background: var(--bg-primary); border: 1px solid var(--border-color); padding: 2.5rem; margin-bottom: 2rem; border-radius: 0px; }
+        h1, h2, h3 { font-weight: 600; letter-spacing: -0.01em; margin-bottom: 1.5rem; }
+        h1 { font-size: 2rem; }
+        h2 { font-size: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; color: var(--text-secondary); }
+        input[type="text"], input[type="password"], select, textarea { width: 100%; padding: 0.8rem 1rem; border: 1px solid var(--border-color); background: var(--bg-secondary); font-family: var(--font-main); font-size: 1rem; color: var(--text-primary); transition: border-color 0.2s ease; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--text-primary); background: var(--bg-primary); }
+        .btn { display: inline-block; padding: 0.8rem 2rem; font-family: var(--font-main); font-size: 0.95rem; font-weight: 500; text-decoration: none; cursor: pointer; transition: all 0.2s ease; border: 1px solid var(--text-primary); background: transparent; color: var(--text-primary); }
+        .btn-primary { background: var(--text-primary); color: var(--bg-primary); }
+        .btn-primary:hover { background: var(--accent); border-color: var(--accent); }
+        .btn-secondary:hover { background: var(--bg-secondary); }
+        .grid-cantons { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 0.5rem; margin-bottom: 1.5rem; }
+        .canton-chip { border: 1px solid var(--border-color); padding: 0.5rem; text-align: center; cursor: pointer; font-weight: 500; font-size: 0.9rem; background: var(--bg-secondary); }
+        .canton-chip.active { background: var(--text-primary); color: var(--bg-primary); border-color: var(--text-primary); }
+        .grid-fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .checkbox-card { border: 1px solid var(--border-color); padding: 1rem; cursor: pointer; display: flex; align-items: center; background: var(--bg-secondary); }
+        .checkbox-card input { margin-right: 1rem; transform: scale(1.2); }
+        .checkbox-card.active { border-color: var(--text-primary); background: var(--bg-primary); }
+        .simulation-container { display: flex; flex-direction: column; height: calc(100vh - 200px); min-height: 500px; }
+        .sim-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem; }
+        .timer-badge { font-family: monospace; font-size: 1.2rem; font-weight: 600; }
+        .progress-bar-container { width: 100%; height: 3px; background: var(--bg-tertiary); margin-bottom: 1.5rem; }
+        .progress-bar { height: 100%; width: 0%; background: var(--text-primary); transition: width 0.4s ease; }
+        .chat-feed { flex-grow: 1; overflow-y: auto; padding-right: 1rem; margin-bottom: 1.5rem; }
+        .message { margin-bottom: 2rem; max-width: 85%; animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .message-meta { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.3rem; color: var(--text-secondary); }
+        .message-text { background: var(--bg-secondary); padding: 1.2rem 1.5rem; border-left: 3px solid var(--text-muted); font-size: 1rem; }
+        .msg-commission { margin-right: auto; }
+        .msg-commission .message-text { border-left-color: var(--accent); background: var(--bg-secondary); }
+        .msg-user { margin-left: auto; max-width: 80%; }
+        .msg-user .message-text { border-left: none; border-right: 3px solid var(--text-primary); background: var(--bg-primary); text-align: left; border: 1px solid var(--border-color); }
+        .input-area { display: flex; gap: 1rem; align-items: flex-end; background: var(--bg-primary); padding-top: 1rem; border-top: 1px solid var(--border-color); }
+        .input-wrapper { flex-grow: 1; position: relative; }
+        .speech-indicator { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); width: 10px; height: 10px; background: var(--error); border-radius: 50%; animation: pulse 1.2s infinite; }
+        @keyframes pulse { 0% { transform: translateY(-50%) scale(0.9); opacity: 0.6; } 50% { transform: translateY(-50%) scale(1.3); opacity: 1; } 100% { transform: translateY(-50%) scale(0.9); opacity: 0.6; } }
+        .control-btns { display: flex; gap: 0.5rem; }
+        .btn-icon { padding: 0.8rem; display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; }
+        .feedback-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 2rem; }
+        .grade-box { border: 2px solid var(--text-primary); text-align: center; padding: 3rem 1rem; }
+        .grade-num { font-size: 5rem; font-weight: 700; line-height: 1; margin-bottom: 0.5rem; }
+        .metric-card { border-bottom: 1px solid var(--border-color); padding: 1rem 0; }
+        .metric-title { font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+        #toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--text-primary); color: var(--bg-primary); padding: 1rem 2rem; font-size: 0.9rem; z-index: 1000; animation: fadeIn 0.2s ease; }
     </style>
-    """,
-    unsafe_allow_html=True
-)
+</head>
+<body>
 
-# Global definitions for both recipe generator and my recipes 
-def get_recipes(query, min_calories, max_calories, dietary, exclude, cuisine, meal_type):
-    params = {
-        "query": query,
-        "apiKey": API_KEY,
-        "number": 10,
-        "addRecipeInformation": True,
-        "minCalories": min_calories,
-        "maxCalories": max_calories,
-        "cuisine": cuisine if cuisine else None,
-        "type": meal_type if meal_type else None,
-        "intolerances": ",".join([key for key, value in dietary.items() if value]),
-        "excludeIngredients": exclude if exclude else None,
-    }
-    response = requests.get(API_URL, params=params)
-    return response.json() if response.status_code == 200 else None
+    <header>
+        <div class="logo">LexAI <span>// Anwaltsprüfung</span></div>
+        <div id="user-status-bar" style="font-size: 0.9rem;">
+            <span id="status-user-name">API nicht verbunden</span> | <a href="#" onclick="logout()" style="color: var(--text-primary);">Trennen</a>
+        </div>
+    </header>
 
-def get_recipe_details(recipe_id):
-    url = RECIPE_INFO_URL.format(id=recipe_id)
-    params = {"apiKey": API_KEY}
-    response = requests.get(url, params=params)
-    return response.json() if response.status_code == 200 else None
+    <main>
+        <div id="toast" class="hidden"></div>
 
-if page == "Home":
-    # Title
-    st.title("My Nutrition Coach 🥗")
-
-    # Welcome Message and Page Content
-    st.markdown("<h2>Welcome to your personalized nutrition and fitness assistant!</h2>", unsafe_allow_html=True)
-    st.markdown("Finding balance between enjoying delicious meals and maintaining a healthy lifestyle can feel overwhelming. That’s why having a tool that combines recipe discovery, meal planning, and personalized calorie tracking is so important.")
-    st.markdown("This platform helps you find recipes that fit your tastes and goals while calculating your unique calorie needs based on your age, weight and height. With a built-in weekly planner, you can organize your meals effortlessly, saving time and staying on track.")
-    st.markdown("It’s not just about food—it’s about creating a lifestyle where eating well is simple, enjoyable, and empowering. Cook smarter, eat better, and embrace a healthier, happier you.")
-    
-   # Injecting CSS for the background-image-area class
-    st.markdown("""
-        <style>
-            .background-image-area {
-                height: 300px;
-                background-image: url('https://www.fitnessfirst.de/sites/g/files/tbchtk381/files/2023-08/Meal_Prep_Header.jpg');
-                background-size: cover;
-                background-position: center;
-                background-repeat: no-repeat;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                overflow: hidden;
-                border-radius: 8px;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-            }
-        </style>
-    """, unsafe_allow_html=True)
-
-    # Creating a div with the class background-image-area
-    st.markdown('<div class="background-image-area"></div>', unsafe_allow_html=True)
-    
-# Recipe Generator
-elif page == "Recipe Generator":
-    st.title("Recipe Generator 🍳")
-    
-    # User inputs
-    query = st.text_input("Enter a recipe keyword:", "")
-    dietary_preferences = {
-        "Vegan": st.checkbox("Vegan"),
-        "Vegetarian": st.checkbox("Vegetarian"),
-        "Lactose-Free": st.checkbox("Lactose-Free"),
-        "Gluten-Free": st.checkbox("Gluten-Free"),
-    }
-    exclude_ingredient = st.text_input("Exclude Ingredient (optional):", "")
-    calorie_range = st.slider(
-        "Calorie Range (optional):", min_value=0, max_value=2000, value=(0, 500), step=10
-    )
-    cuisine = st.selectbox(
-        "Filter by Cuisine (optional):",
-        options=["", "African", "Asian", "American", "European", "Italian", "Mexican", "Indian", "Mediterranean"],
-        index=0,
-    )
-    meal_type = st.selectbox("Meal Type:", options=["Breakfast", "Lunch", "Dinner"], index=0)
-
-    # Button to start the search
-    search_pressed = st.button("Search")
-
-    # Initialize session state to store search results and expanded details
-    if "search_results" not in st.session_state:
-        st.session_state["search_results"] = []  # Store recipes
-        st.session_state["expanded_recipes"] = {}  # Track expanded recipe details
-
-    # Perform search when the button is pressed
-    if search_pressed:
-        st.session_state["search_results"] = get_recipes(
-            query,
-            calorie_range[0],
-            calorie_range[1],
-            dietary_preferences,
-            exclude_ingredient,
-            cuisine,
-            meal_type,
-        ).get("results", [])
-
-    # Display search results
-    if st.session_state["search_results"]:
-        for recipe in st.session_state["search_results"]:
-            st.write(f"### {recipe['title']}")
-            st.image(recipe.get("image", ""), width=250)
-            nutrients = recipe.get("nutrition", {}).get("nutrients", [])
-            calories = next((n["amount"] for n in nutrients if n["name"] == "Calories"), "N/A")
-
-            # Ensure calories is a rounded number
-            if calories != "N/A":
-                calories = round(calories)
-        
-            st.write(f"**Calories Per Person:** {calories} kcal")
-
-            # Manage details toggle
-            recipe_id = recipe["id"]
-            if recipe_id not in st.session_state["expanded_recipes"]:
-                st.session_state["expanded_recipes"][recipe_id] = False
-
-            # Toggle visibility for recipe details
-            toggle_details = st.checkbox(
-                f"View Full Recipe for {recipe['title']}",
-                key=f"details_{recipe_id}",
-                value=st.session_state["expanded_recipes"][recipe_id],
-            )
-            st.session_state["expanded_recipes"][recipe_id] = toggle_details
-
-            # Show full recipe details if toggled
-            if st.session_state["expanded_recipes"][recipe_id]:
-                details = get_recipe_details(recipe_id)
-                if details:
-                    st.write("#### Ingredients:")
-                    for ingredient in details["extendedIngredients"]:
-                        st.write(f"- {ingredient['original']}")
-                    st.write("#### Instructions:")
-                    for step in details.get("analyzedInstructions", [{}])[0].get("steps", []):
-                        st.write(f"{step['number']}. {step['step']}")
-
-                    # Filters and categories summary
-                    st.write("#### Filters and Categories:")
-                    st.write(", ".join([key for key, value in dietary_preferences.items() if value]))
-                    st.write(f"**Meal Type:** {meal_type or 'N/A'}")
-                    st.write(f"**Cuisine:** {cuisine or 'N/A'}")
-
-                    # Save recipe to "My Recipes"
-                    if meal_type:  # Ensure meal_type is selected
-                        if st.button(f"Save to My Recipes: {recipe['title']}", key=f"save_{recipe_id}"):
-                            if recipe not in st.session_state["saved_recipes"][meal_type]:
-                                st.session_state["saved_recipes"][meal_type].append(recipe)
-                                st.success(f"{recipe['title']} added to {meal_type} recipes.")
-                            else:
-                                st.warning(f"{recipe['title']} is already in {meal_type} recipes.")
-                    else:
-                        st.warning("Please select a meal type to save this recipe.")
-    else:
-        if search_pressed:
-            st.warning("No recipes found. Please adjust your search criteria.")
-
-# My Recipes
-
-elif page == "My Recipes":
-    st.title("My Recipes 📒")
-    for meal_type, recipes in st.session_state["saved_recipes"].items():
-        with st.expander(f"{meal_type} Recipes ({len(recipes)})"):
-            for recipe in recipes:
-                st.write(f"### {recipe['title']}")
-                st.image(recipe.get("image", ""), width=250)
-                calories = next(
-                    (n["amount"] for n in recipe.get("nutrition", {}).get("nutrients", []) if n["name"] == "Calories"),
-                    "N/A"
-                )
-                st.write(f"**Calories:** {calories} kcal")
+        <div id="view-auth" class="view">
+            <div class="card" style="max-width: 550px; margin: 4rem auto;">
+                <h2>API-Konfiguration</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 2rem; font-size: 0.95rem;">
+                    Bitte hinterlegen Sie Ihren gültigen Anthropic API-Key, um den Simulator zu nutzen. 
+                    Ihr Key wird nur lokal in Ihrem Browser gespeichert und verschlüsselt an Anthropic gesendet.
+                </p>
                 
-                if st.checkbox(f"View Full Recipe for {recipe['title']}", key=f"view_{recipe['id']}"):
-                    details = get_recipe_details(recipe["id"])
-                    if details:
-                        st.write("#### Ingredients:")
-                        for ingredient in details["extendedIngredients"]:
-                            st.write(f"- {ingredient['original']}")
-                        st.write("#### Instructions:")
-                        for step in details.get("analyzedInstructions", [{}])[0].get("steps", []):
-                            st.write(f"{step['number']}. {step['step']}")
+                <div class="form-group" style="margin-bottom: 2rem;">
+                    <label for="api-key">Anthropic API-Key (Claude)</label>
+                    <input type="password" id="api-key" placeholder="sk-ant-...">
+                </div>
 
+                <div style="display: flex; gap: 1rem; flex-direction: column;">
+                    <button class="btn btn-primary" onclick="handleLogin()">Speichern & Fortfahren</button>
+                </div>
+            </div>
+        </div>
 
-# Import Supabase and initialize client
-from supabase import create_client, Client
+        <div id="view-config" class="view hidden">
+            <h1>Konfiguration der Prüfungssimulation</h1>
+            
+            <div class="card">
+                <h2>1. Kantonale Jurisdiktion bestimmen</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.9rem;">
+                    Wählen Sie den Kanton aus. Dies beeinflusst das kantonale Verfahrensrecht.
+                </p>
+                <div class="grid-cantons" id="canton-selector"></div>
+            </div>
 
-SUPABASE_URL = "https://qbnmfdcuzeghmyobcnhi.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFibm1mZGN1emVnaG15b2JjbmhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI2OTg5NzcsImV4cCI6MjA0ODI3NDk3N30.FXophJC6_BilPfwJ8G1oI9Z_8UBqD9uf2UX0OgY3i00"
+            <div class="card">
+                <h2>2. Prüfungsfächer & Materielles Recht</h2>
+                <div class="grid-fields">
+                    <div class="checkbox-card active" onclick="toggleLawField(this, 'Zivilrecht')">
+                        <input type="checkbox" value="Zivilrecht" checked>
+                        <div><strong>Zivilrecht</strong> <span style="display:block; font-size:0.8rem; color:var(--text-secondary);">ZGB, OR</span></div>
+                    </div>
+                    <div class="checkbox-card" onclick="toggleLawField(this, 'Strafrecht')">
+                        <input type="checkbox" value="Strafrecht">
+                        <div><strong>Strafrecht</strong> <span style="display:block; font-size:0.8rem; color:var(--text-secondary);">StGB</span></div>
+                    </div>
+                    <div class="checkbox-card" onclick="toggleLawField(this, 'Verwaltungsrecht')">
+                        <input type="checkbox" value="Verwaltungsrecht">
+                        <div><strong>Öffentliches Recht</strong> <span style="display:block; font-size:0.8rem; color:var(--text-secondary);">VwVG, BV</span></div>
+                    </div>
+                    <div class="checkbox-card" onclick="toggleLawField(this, 'SchKG')">
+                        <input type="checkbox" value="SchKG">
+                        <div><strong>SchKG</strong> <span style="display:block; font-size:0.8rem; color:var(--text-secondary);">Betreibung & Konkurs</span></div>
+                    </div>
+                    <div class="checkbox-card active" onclick="toggleLawField(this, 'ZPO')">
+                        <input type="checkbox" value="ZPO" checked>
+                        <div><strong>Zivilprozessrecht</strong> <span style="display:block; font-size:0.8rem; color:var(--text-secondary);">ZPO</span></div>
+                    </div>
+                    <div class="checkbox-card" onclick="toggleLawField(this, 'StPO')">
+                        <input type="checkbox" value="StPO">
+                        <div><strong>Strafprozessrecht</strong> <span style="display:block; font-size:0.8rem; color:var(--text-secondary);">StPO</span></div>
+                    </div>
+                </div>
+            </div>
 
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+            <div class="grid-fields" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+                <div class="card">
+                    <h2>3. Prüfungsmodus</h2>
+                    <div class="form-group">
+                        <select id="select-mode" onchange="toggleDuoInfo()">
+                            <option value="solo">Solo-Modus</option>
+                            <option value="duo">Duo-Modus (Mitkandidat)</option>
+                        </select>
+                    </div>
+                    <p id="duo-info" style="font-size:0.85rem; color:var(--text-secondary);" class="hidden">
+                        * Im Duo-Modus agiert Claude zusätzlich als zweiter Prüfling.
+                    </p>
+                </div>
 
-# Weekly Planner
-if page == "Weekly Planner":
-    st.title("Weekly Planner 📅")
-    days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-    meals = ["Breakfast", "Lunch", "Dinner"]
+                <div class="card">
+                    <h2>4. Parameter</h2>
+                    <div class="form-group">
+                        <select id="select-input">
+                            <option value="text">Tastatur (Chat)</option>
+                            <option value="speech">Sprache (Mikrofon)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <select id="select-difficulty">
+                            <option value="standard">Standard</option>
+                            <option value="rigoros">Rigoros</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
 
-    if st.session_state.get("logged_in", False):
-        # Fetch the user's estimated calories from Supabase
-        user_data = st.session_state.user_data
-        username = user_data["username"]
+            <div style="text-align: right; margin-top: 1rem;">
+                <button class="btn btn-primary" style="padding: 1rem 3rem; font-size: 1.1rem;" onclick="startExamSession()">Simulation starten</button>
+            </div>
+        </div>
 
-        # Retrieve the estimated calories from Supabase - see Supabase Guide Nr. 6
-        try:
-            response = supabase.table("users").select("calories").eq("username", username).execute()
-            if response.data:
-                estimated_calories = round(response.data[0]["calories"])  # Round the estimated calories
-            else:
-                st.error("Failed to fetch estimated calories from the database.")
-                estimated_calories = 0.0
-        except Exception as e:
-            st.error(f"Error fetching data: {e}")
-            estimated_calories = 0.0
-    else:
-        estimated_calories = None
+        <div id="view-exam" class="view hidden">
+            <div class="simulation-container">
+                <div class="sim-header">
+                    <div>
+                        <span id="badge-canton" style="background:var(--text-primary); color:var(--bg-primary); padding:0.2rem 0.6rem; font-weight:700; margin-right: 0.5rem;">ZH</span>
+                        <span id="badge-mode" style="text-transform:uppercase; font-size:0.85rem; letter-spacing:0.05em; font-weight:600;">SIMULATION</span>
+                    </div>
+                    <div class="timer-badge" id="exam-timer">20:00</div>
+                </div>
 
-    # Initialize data for the graph
-    daily_totals = []
-    estimated_line = [estimated_calories] * len(days) if estimated_calories else []
+                <div class="progress-bar-container"><div class="progress-bar" id="exam-progress"></div></div>
+                <div class="chat-feed" id="chat-feed-container"></div>
 
-    # Loop through each day of the week
-    for day in days:
-        st.write(f"### {day}")
-        col1, col2, col3 = st.columns(3)
-        total_calories = 0
+                <div class="input-area">
+                    <div class="input-wrapper">
+                        <textarea id="user-chat-input" rows="2" placeholder="Argumentation eingeben... (Ctrl+Enter zum Senden)"></textarea>
+                        <div id="mic-active-pulse" class="speech-indicator hidden"></div>
+                    </div>
+                    <div class="control-btns">
+                        <button id="btn-toggle-mic" class="btn btn-secondary btn-icon" onclick="toggleSpeech()">🎤</button>
+                        <button class="btn btn-primary" onclick="processUserResponse()">Senden</button>
+                        <button class="btn btn-secondary" onclick="terminateSessionPrompt()" style="border-color:var(--error); color:var(--error);">Beenden</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        # Loop through each meal for the day
-        for col, meal in zip([col1, col2, col3], meals):
-            with col:
-                selected_recipe = st.selectbox(
-                    f"{meal}:", 
-                    ["None"] + [recipe["title"] for recipe in st.session_state["saved_recipes"][meal]],
-                    key=f"{day}_{meal}"
-                )
-                if selected_recipe != "None":
-                    recipe = next(
-                        (recipe for recipe in st.session_state["saved_recipes"][meal] if recipe["title"] == selected_recipe),
-                        None
-                    )
-                    if recipe:
-                        # Extract calories from the recipe
-                        calories = next(
-                            (n["amount"] for n in recipe.get("nutrition", {}).get("nutrients", []) if n["name"] == "Calories"), 
-                            0
-                        )
-                        total_calories += calories
+        <div id="view-feedback" class="view hidden">
+            <h1>Auswertung</h1>
+            <div class="feedback-grid">
+                <div>
+                    <div class="grade-box">
+                        <div class="metric-title">Gesamtnote</div>
+                        <div class="grade-num" id="eval-grade">-</div>
+                        <div style="font-weight: 600;" id="eval-result-text">Wird berechnet...</div>
+                    </div>
+                    <br>
+                    <button class="btn btn-primary" style="width: 100%;" onclick="resetToConfig()">Neue Simulation</button>
+                </div>
+                <div class="card">
+                    <div class="metric-card"><div class="metric-title">1. Korrektheit</div><p id="eval-correctness" style="font-size:0.95rem;"></p></div>
+                    <div class="metric-card"><div class="metric-title">2. Vernetzung</div><p id="eval-networking" style="font-size:0.95rem;"></p></div>
+                    <div class="metric-card"><div class="metric-title">3. Rhetorik & Tempo</div><p id="eval-speed" style="font-size:0.95rem;"></p></div>
+                    <div class="metric-card" style="border-bottom:none;"><div class="metric-title">4. Verbesserungsvorschläge</div><p id="eval-suggestions" style="font-size:0.95rem; white-space: pre-line;"></p></div>
+                </div>
+            </div>
+        </div>
+    </main>
 
-        # Display total calories for the day, rounded to a whole number
-        st.write(f"**Total Calories for {day}: {round(total_calories)} kcal**")
-        daily_totals.append(total_calories)
-
-        # Display the difference only if logged in
-        if estimated_calories is not None:
-            difference = total_calories - estimated_calories
-            st.write(f"**Difference from Estimated Calories: {round(difference)} kcal**")
-
-    # Add a graph for weekly calorie comparison
-    if daily_totals and estimated_line:
-        import matplotlib.pyplot as plt
-
-        fig, ax = plt.subplots(figsize=(10, 5))
-        ax.plot(days, daily_totals, label="Total Calories", marker="o", color="blue")
-        if estimated_calories:
-            ax.plot(days, estimated_line, label="Estimated Calories", linestyle="--", color="orange")
-
-        ax.set_title("Weekly Calorie Overview", fontsize=16)
-        ax.set_xlabel("Days of the Week", fontsize=12)
-        ax.set_ylabel("Calories", fontsize=12)
-        ax.legend(loc="upper left", fontsize=10)
-        ax.grid(True)
-
-        st.pyplot(fig)
-
-import pandas as pd  # Import pandas to handle DataFrame
-from sklearn.preprocessing import LabelEncoder
-from sklearn.ensemble import RandomForestRegressor
-import streamlit as st
-
-@st.cache_resource
-def train_model():
-    # Get data from Supabase - the data contains weight, height, gender, age and the daily calories of 1000 persons. The data has been created with ChatGTP and is fictitious. 
-    try:
-        response = supabase.table("calories").select("weight, height, gender, age, daily_caloric_needs").execute()
-
-        # Now check the structure of the response
-        if hasattr(response, 'data'):
-            data = pd.DataFrame(response.data)  # Convert the data to DataFrame
-            if data.empty:
-                st.error("No data found in the calories table.")
-                return None
+    <script>
+        const cantons = ['AG', 'AI', 'AR', 'BE', 'BL', 'BS', 'FR', 'GE', 'GL', 'GR', 'JU', 'LU', 'NE', 'NW', 'OW', 'SG', 'SH', 'SO', 'SZ', 'TG', 'TI', 'UR', 'VD', 'VS', 'ZG', 'ZH'];
         
-            # Preprocessing: Convert Gender to numeric using LabelEncoder
-            data['gender'] = LabelEncoder().fit_transform(data['gender'])
+        let state = {
+            apiKey: '',
+            config: { canton: 'ZH', fields: ['Zivilrecht', 'ZPO'], mode: 'solo', inputType: 'text', difficulty: 'standard' },
+            session: { active: false, timeLeft: 1200, timerInterval: null, history: [], questionCount: 0, maxQuestions: 4 }
+        };
 
-            # Select features and target variable
-            features = ['weight', 'height', 'gender', 'age']
-            target = 'daily_caloric_needs'
+        let speechRecognition = null; let isListening = false;
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechObj = window.SpeechRecognition || window.webkitSpeechRecognition;
+            speechRecognition = new SpeechObj();
+            speechRecognition.continuous = true; speechRecognition.interimResults = true; speechRecognition.lang = 'de-CH'; 
+            speechRecognition.onresult = (e) => {
+                let finalTranscript = '';
+                for (let i = e.resultIndex; i < e.results.length; ++i) { if (e.results[i].isFinal) finalTranscript += e.results[i][0].transcript; }
+                if(finalTranscript) document.getElementById('user-chat-input').value += finalTranscript + ' ';
+            };
+            speechRecognition.onerror = () => { showToast("Spracherkennungsfehler."); stopListeningMode(); };
+        }
 
-            # Prepare training data
-            X = data[features]
-            y = data[target]
+        function toggleSpeech() {
+            if (!speechRecognition) return showToast("Spracheingabe nicht unterstützt.");
+            if (isListening) stopListeningMode();
+            else {
+                try { speechRecognition.start(); isListening = true; document.getElementById('mic-active-pulse').classList.remove('hidden'); document.getElementById('btn-toggle-mic').style.background = 'var(--accent-light)'; } catch(e){}
+            }
+        }
+        function stopListeningMode() { if (speechRecognition && isListening) { speechRecognition.stop(); isListening = false; document.getElementById('mic-active-pulse').classList.add('hidden'); document.getElementById('btn-toggle-mic').style.background = 'transparent'; } }
+        function speak(text) { if ('speechSynthesis' in window) { const u = new SpeechSynthesisUtterance(text.replace(/[*#_]/g, '')); u.lang = 'de-DE'; window.speechSynthesis.speak(u); } }
 
-            # Train RandomForestRegressor
-            model = RandomForestRegressor(random_state=42, n_estimators=100)
-            model.fit(X, y)
+        window.onload = () => { buildCantonSelector(); loadStateFromLocalStorage(); };
+        function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 4000); }
+        function switchView(viewId) { document.querySelectorAll('.view').forEach(v => v.classList.add('hidden')); document.getElementById(viewId).classList.remove('hidden'); window.scrollTo(0,0); }
 
-            return model
-        else:
-            st.error("Failed to fetch valid data from Supabase.")
-            return None
-    except Exception as e:
-        st.error(f"Error loading data from Supabase: {e}")
-        return None
+        function buildCantonSelector() {
+            const container = document.getElementById('canton-selector');
+            cantons.forEach(c => {
+                const chip = document.createElement('div');
+                chip.className = `canton-chip ${c === state.config.canton ? 'active' : ''}`;
+                chip.innerText = c;
+                chip.onclick = () => { document.querySelectorAll('.canton-chip').forEach(el => el.classList.remove('active')); chip.classList.add('active'); state.config.canton = c; saveStateToLocalStorage(); };
+                container.appendChild(chip);
+            });
+        }
 
-# Load the trained model
-model = train_model()
+        function toggleLawField(element, fieldName) {
+            const ev = window.event; const checkbox = element.querySelector('input');
+            if (ev && ev.target !== checkbox) checkbox.checked = !checkbox.checked;
+            if (checkbox.checked) { element.classList.add('active'); if(!state.config.fields.includes(fieldName)) state.config.fields.push(fieldName); } 
+            else { element.classList.remove('active'); state.config.fields = state.config.fields.filter(f => f !== fieldName); }
+            saveStateToLocalStorage();
+        }
 
-# My Account
-# Created with Supabase Guide and ChatGTP
-if page == "My Account":
-    st.title("My Account 🧑‍💻")
+        function toggleDuoInfo() { state.config.mode = document.getElementById('select-mode').value; document.getElementById('duo-info').classList.toggle('hidden', state.config.mode !== 'duo'); }
 
-    # Initialize session state for login
-    if "logged_in" not in st.session_state:
-        st.session_state.logged_in = False
-        st.session_state.user_data = None
+        function handleLogin() {
+            const key = document.getElementById('api-key').value.trim();
+            if(!key) return showToast("Bitte API-Key eingeben.");
+            state.apiKey = key; document.getElementById('status-user-name').innerText = "API Verbunden";
+            switchView('view-config'); saveStateToLocalStorage();
+        }
 
-    # Function to insert a new user - see Supabase Guide with instructions Nr. 5    
-    def insert_user(username: str, password: str, name: str, age: int, gender: str):
-        try:
-            response = supabase.table("users").insert({
-                "username": username,
-                "password": password,
-                "name": name,
-                "age": age,
-                "gender": gender,
-                "weight": 0.0,  # Default weight
-                "height": 0.0,  # Default height
-                "calories": 0.0  # Default calories
-            }).execute()
-            return response.data
-        except Exception as e:
-            return e
+        function logout() { state.apiKey = ''; document.getElementById('api-key').value = ''; document.getElementById('status-user-name').innerText = "API nicht verbunden"; saveStateToLocalStorage(); switchView('view-auth'); }
 
-    # Function to display user profile and allow updating weight, height, and calories
-    def display_profile(user_data):
-        st.subheader("Profile Information")
-        st.write(f"**Username:** {user_data.get('username', 'N/A')}")
-        st.write(f"**Name:** {user_data.get('name', 'N/A')}")
-        st.write(f"**Age:** {user_data.get('age', 'N/A')}")
-        st.write(f"**Gender:** {user_data.get('gender', 'N/A')}")
-        st.write(f"**Weight:** {user_data.get('weight', 0.0)} kg")
-        st.write(f"**Height:** {user_data.get('height', 0.0)} cm")
-        st.write(f"**Estimated Calories:** {round(user_data.get('calories', 0.0))} kcal/day")
+        function saveStateToLocalStorage() { localStorage.setItem('lexai_state', JSON.stringify({ config: state.config, apiKey: state.apiKey })); }
+        function loadStateFromLocalStorage() {
+            const data = localStorage.getItem('lexai_state');
+            if(data) {
+                const parsed = JSON.parse(data); state.config = parsed.config;
+                if(parsed.apiKey) { state.apiKey = parsed.apiKey; document.getElementById('api-key').value = state.apiKey; document.getElementById('status-user-name').innerText = "API Verbunden"; switchView('view-config'); }
+                document.getElementById('select-mode').value = state.config.mode; document.getElementById('select-input').value = state.config.inputType; document.getElementById('select-difficulty').value = state.config.difficulty; toggleDuoInfo();
+            }
+        }
 
-        # Input fields for weight and height
-        weight = st.number_input("Update your weight (kg):", min_value=0.0, step=0.1, value=user_data.get("weight", 0.0))
-        height = st.number_input("Update your height (cm):", min_value=0.0, step=0.1, value=user_data.get("height", 0.0))
+        function startExamSession() {
+            if(!state.apiKey) return switchView('view-auth');
+            if(state.config.fields.length === 0) return showToast("Bitte Rechtsgebiet wählen.");
+            state.session.active = true; state.session.timeLeft = state.config.difficulty === 'rigoros' ? 900 : 1200; state.session.questionCount = 0; state.session.history = [];
+            document.getElementById('badge-canton').innerText = state.config.canton; document.getElementById('chat-feed-container').innerHTML = '';
+            switchView('view-exam'); startTimer(); triggerAIQuestionGeneration(true);
+        }
 
-        # Predict calories using the ML model
-        if weight > 0 and height > 0:
-            gender = 0 if user_data.get("gender", "Male").lower() == "male" else 1
-            age = user_data.get("age", 25)
-            predicted_calories = round(model.predict([[weight, height, gender, age]])[0])
-        else:
-            predicted_calories = 0.0
+        function startTimer() {
+            clearInterval(state.session.timerInterval);
+            state.session.timerInterval = setInterval(() => {
+                state.session.timeLeft--;
+                const m = Math.floor(state.session.timeLeft / 60); const s = state.session.timeLeft % 60;
+                document.getElementById('exam-timer').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                if(state.session.timeLeft <= 0) { clearInterval(state.session.timerInterval); terminateSession(); }
+            }, 1000);
+        }
 
-        if st.button("Save Weight, Height, and Calories"):
-            try:
-                # Update the user's weight, height, and calories in the database (see point Supabase Guide Nr. 7)
-                response = supabase.table("users").update({
-                    "weight": weight,
-                    "height": height,
-                    "calories": predicted_calories
-                }).eq("username", user_data["username"]).execute()
-                if response.data:
-                    # Update session state with the new data
-                    st.session_state.user_data["weight"] = weight
-                    st.session_state.user_data["height"] = height
-                    st.session_state.user_data["calories"] = predicted_calories
-                    st.success("Weight, height, and calories updated successfully!")
-                else:
-                    st.error("Failed to update weight, height, and calories.")
-            except Exception as e:
-                st.error(f"Error: {e}")
+        async function triggerAIQuestionGeneration(isFirstQuestion, userText = "") {
+            state.session.questionCount++;
+            document.getElementById('exam-progress').style.width = `${(state.session.questionCount / state.session.maxQuestions) * 100}%`;
+            if (state.session.questionCount > state.session.maxQuestions) return terminateSession();
+            appendLoadingIndicator();
+            try {
+                const response = await callClaudeAPI(userText, isFirstQuestion);
+                removeLoadingIndicator();
+                appendMessage("Kommission (KI)", response, "commission");
+                if(state.config.inputType === 'speech') speak(response);
+                state.session.history.push({ role: "assistant", content: response });
+            } catch (error) {
+                removeLoadingIndicator(); showToast("API Fehler: " + error.message); state.session.questionCount--; 
+            }
+        }
 
-    if not st.session_state.logged_in:
-        # Tabs for Login and Registration
-        tab1, tab2 = st.tabs(["Login", "Register"])
+        async function callClaudeAPI(userText, isFirstQuestion) {
+            let roleInstruction = state.config.mode === 'duo' ? "Du simulierst Vorsitzenden UND Mitkandidat (Müller). Mache deutlich wer spricht." : "Du bist der Vorsitzende.";
+            const systemPrompt = `Du bist die Prüfungskommission der Schweizer Anwaltsprüfung Kanton ${state.config.canton}.
+            Aufgaben:
+            - Erfinde realistische Prüfungsfälle basierend auf echten Gerichtsurteilen (Rechtsgebiete: ${state.config.fields.join(', ')}).
+            - Prüfe präzise, hake nach. Sprache: Schweizer Hochdeutsch. Modus: ${state.config.mode}. Schwierigkeit: ${state.config.difficulty}.
+            - ${roleInstruction}
+            ${isFirstQuestion ? "Beginne mit Begrüssung und erstem Sachverhalt." : "Bewerte die Antwort. Stelle dann eine Rückfrage oder wechsle den Fall."}`;
 
-        # Login tab
-        with tab1:
-            st.subheader("Login")
-            login_username = st.text_input("Username", key="login_username")
-            login_password = st.text_input("Password", type="password", key="login_password")
+            const messages = state.session.history.map(h => ({ role: h.role, content: h.content }));
+            if(userText) messages.push({ role: "user", content: userText });
+            else if(isFirstQuestion) messages.push({ role: "user", content: "Ich bin bereit." });
 
-            # See Supabase Guide Nr. 6
-            if st.button("Press twice to Login"):
-                try:
-                    # Retrieve user profile after login
-                    response = supabase.table("users").select("*").eq("username", login_username).eq("password", login_password).execute()
-                    if response.data:
-                        user_data = response.data[0]  # Get the first matching user
-                        st.session_state.logged_in = True  # Mark user as logged in
-                        st.session_state.user_data = user_data  # Store user data
-                        st.success("Login successful!")
-                    else:
-                        st.error("Invalid username or password.")
-                except Exception as e:
-                    st.error(f"Error: {e}")
+            const payload = { model: 'claude-3-5-sonnet-20241022', max_tokens: 1024, system: systemPrompt, messages: messages };
+            
+            // Versuch 1: Direkter Fetch (funktioniert wenn CORS-Erweiterung aktiv ist oder auf bestimmten Hosts)
+            let response;
+            try {
+                response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-api-key': state.apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+                    body: JSON.stringify(payload)
+                });
+            } catch (e) {
+                // Versuch 2: Fallback über allOrigins Proxy (Zuverlässiger für GitHub Pages ohne Erweiterung)
+                const proxyUrl = 'https://api.allorigins.win/raw?url=';
+                response = await fetch(proxyUrl + encodeURIComponent('https://api.anthropic.com/v1/messages'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'x-api-key': state.apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+                    body: JSON.stringify(payload)
+                });
+            }
 
-        # Registration tab
-        with tab2:
-            st.subheader("Register")
-            reg_name = st.text_input("Name", key="reg_name")
-            reg_username = st.text_input("Username", key="reg_username")
-            reg_password = st.text_input("Password", type="password", key="reg_password")
-            reg_age = st.number_input("Age", min_value=1, max_value=120, step=1, key="reg_age")
-            reg_gender = st.selectbox("Gender", ["Male", "Female", "Other"], key="reg_gender")
+            if (!response.ok) throw new Error(`API Fehler ${response.status}`);
+            const data = await response.json(); return data.content[0].text;
+        }
 
-            if st.button("Press twice to Register"):
-                if reg_name and reg_username and reg_password and reg_age and reg_gender:
-                    response = insert_user(reg_username, reg_password, reg_name, reg_age, reg_gender)
-                    if isinstance(response, list):  # Successful registration returns a list of inserted rows
-                        st.session_state.logged_in = True  # Mark user as logged in
-                        st.session_state.user_data = {
-                            "name": reg_name,
-                            "username": reg_username,
-                            "age": reg_age,
-                            "gender": reg_gender,
-                            "weight": 0.0,
-                            "height": 0.0,
-                            "calories": 0.0
-                        }  # Store user data - see Supabase Guide Nr. 6
-                        st.success("User registered successfully!")
-                else:
-                    st.error("Please fill in all fields (Name, Username, Password, Age, and Gender).")
-    else:
-        # Display profile if logged in
-        display_profile(st.session_state.user_data)
+        function processUserResponse() {
+            const inputEl = document.getElementById('user-chat-input'); const text = inputEl.value.trim();
+            if(!text) return; stopListeningMode(); appendMessage("Sie", text, "user"); state.session.history.push({ role: "user", content: text }); inputEl.value = ''; triggerAIQuestionGeneration(false, text);
+        }
+
+        document.getElementById('user-chat-input').addEventListener('keydown', (e) => { if (e.ctrlKey && e.key === 'Enter') processUserResponse(); });
+
+        function appendMessage(sender, text, roleClass) {
+            const container = document.getElementById('chat-feed-container'); const msgDiv = document.createElement('div'); msgDiv.className = `message msg-${roleClass}`;
+            msgDiv.innerHTML = `<div class="message-meta">${sender} • ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div><div class="message-text">${text}</div>`;
+            container.appendChild(msgDiv); container.scrollTop = container.scrollHeight;
+        }
+
+        function appendLoadingIndicator() {
+            const container = document.getElementById('chat-feed-container'); const loader = document.createElement('div'); loader.id = 'ai-loader';
+            loader.innerHTML = `<div style="padding:1rem; font-style:italic; color:var(--text-secondary);">KI generiert...</div>`; container.appendChild(loader); container.scrollTop = container.scrollHeight;
+        }
+        function removeLoadingIndicator() { const loader = document.getElementById('ai-loader'); if(loader) loader.remove(); }
+
+        function terminateSessionPrompt() { if(confirm("Prüfung abbrechen und auswerten?")) terminateSession(); }
+
+        async function terminateSession() {
+            clearInterval(state.session.timerInterval); stopListeningMode(); appendLoadingIndicator(); switchView('view-feedback');
+            try {
+                const evalPrompt = `Werte den Chat aus. JSON Format: {"grade": "X.X", "correctness": "...", "networking": "...", "speed": "...", "suggestions": "..."}. Schweizer Notenskala (1-6). NUR validen JSON zurückgeben.`;
+                const response = await callClaudeAPI(evalPrompt, false);
+                const cleanJson = response.substring(response.indexOf('{'), response.lastIndexOf('}') + 1); const evalObj = JSON.parse(cleanJson);
+                document.getElementById('eval-grade').innerText = evalObj.grade || "-";
+                document.getElementById('eval-result-text').innerText = parseFloat(evalObj.grade) >= 4.0 ? "BESTANDEN" : "NICHT BESTANDEN";
+                document.getElementById('eval-correctness').innerText = evalObj.correctness || "-"; document.getElementById('eval-networking').innerText = evalObj.networking || "-"; document.getElementById('eval-speed').innerText = evalObj.speed || "-"; document.getElementById('eval-suggestions').innerText = evalObj.suggestions || "-";
+            } catch (e) {
+                showToast("Auswertungsfehler."); document.getElementById('eval-grade').innerText = "N/A";
+            }
+            removeLoadingIndicator(); state.session.active = false; saveStateToLocalStorage();
+        }
+        function resetToConfig() { switchView('view-config'); }
+    </script>
+</body>
+</html>
